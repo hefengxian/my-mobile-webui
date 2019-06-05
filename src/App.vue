@@ -1,29 +1,57 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="app">
+        <FullScreenLoading v-if="loading"/>
+        <router-view v-if="!loading"/>
     </div>
-    <router-view/>
-  </div>
 </template>
 
-<style lang="less">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+<script>
+    import FullScreenLoading from "./components/FullScreenLoading";
+
+    export default {
+        name: "App",
+
+        mixins: [],
+
+        components: {
+            FullScreenLoading
+        },
+
+        props: {},
+
+        data() {
+            return {
+                loading: true
+            };
+        },
+
+        computed: {},
+
+        watch: {},
+
+        created() {
+
+            setTimeout(() => {
+                let r = {}
+                r.path = Math.round(Math.random() * 2) === 0 ? '/about' : '/home'
+                console.log(r, this.$router)
+                this.$router.push(r)
+                this.loading = false
+            }, 5000)
+            console.log('App created...')
+        },
+
+        mounted() {
+
+            console.log('App mounted...')
+        },
+
+        destroyed() {
+        },
+
+        methods: {},
+
+    };
+</script>
+
+<style lang="less"></style>
