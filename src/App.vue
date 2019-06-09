@@ -1,11 +1,12 @@
 <template>
     <div id="app">
-        <FullScreenLoading v-if="loading"/>
-        <router-view v-if="!loading"/>
+        <FullScreenLoading v-show="getLoading" />
+        <router-view v-show="!getLoading"/>
     </div>
 </template>
 
 <script>
+    import { mapGetters } from "vuex"
     import FullScreenLoading from "./components/FullScreenLoading";
 
     export default {
@@ -25,25 +26,28 @@
             };
         },
 
-        computed: {},
+        computed: {
+            ...mapGetters([
+                'getLoading'
+            ]),
+        },
 
         watch: {},
 
         created() {
 
-            setTimeout(() => {
-                let r = {}
-                r.path = Math.round(Math.random() * 2) === 0 ? '/about' : '/home'
-                console.log(r, this.$router)
-                this.$router.push(r)
-                this.loading = false
-            }, 5000)
+            /*setTimeout(() => {
+                // let r = {path: '/about'}
+                // r.path = Math.round(Math.random() * 2) === 0 ? '/about' : '/home'
+                // console.log(r, this.$router)
+            }, 5000)*/
             console.log('App created...')
         },
 
         mounted() {
-
-            console.log('App mounted...')
+            // this.loading = false
+            // console.log(this.$store)
+            console.log('App mounted...', this.getLoading)
         },
 
         destroyed() {
@@ -54,4 +58,9 @@
     };
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+    #app {
+        background-color: #f8f8f8;
+        min-height: 100vh;
+    }
+</style>
