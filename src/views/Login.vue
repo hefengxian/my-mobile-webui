@@ -30,7 +30,7 @@
                     class="submit"
                     :block="true"
                     @click="onLoginClick"
-                    type="primary">登录</van-button>
+                    type="info">登录</van-button>
         </div>
         <div class="login-footer">&copy; {{year}}</div>
     </div>
@@ -56,7 +56,7 @@
         },
         methods: {
             onLoginClick() {
-                this.$router.push('/home')
+                this.$router.push('/')
             }
         }
     }

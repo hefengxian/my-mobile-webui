@@ -9,15 +9,51 @@ const router = new Router({
     routes: [
         {
             path: '/',
-            redirect: '/home',
-        },
-        {
-            path: '/home',
-            name: 'home',
             meta: {
                 requiresAuth: true,
             },
-            component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue'),
+            component: () => import(/* webpackChunkName: "home" */ '../views/MainLayout.vue'),
+            children: [
+                {
+                    path: '/',
+                    redirect: '/list',
+                    meta: {
+                        requiresAuth: true,
+                    },
+                },
+                {
+                    path: 'list',
+                    name: 'ClassifyArticleList',
+                    component: () => import(/* webpackChunkName: "list" */ '../views/ClassifyArticleList.vue'),
+                    meta: {
+                        requiresAuth: true,
+                    },
+                },
+                {
+                    path: 'search',
+                    name: 'Search',
+                    component: () => import(/* webpackChunkName: "list" */ '../views/Search.vue'),
+                    meta: {
+                        requiresAuth: true,
+                    },
+                },
+                {
+                    path: 'analysis',
+                    name: 'Analysis',
+                    component: () => import(/* webpackChunkName: "list" */ '../views/Analysis.vue'),
+                    meta: {
+                        requiresAuth: true,
+                    },
+                },
+                {
+                    path: 'personal',
+                    name: 'Personal',
+                    component: () => import(/* webpackChunkName: "list" */ '../views/Personal.vue'),
+                    meta: {
+                        requiresAuth: true,
+                    },
+                },
+            ],
         },
         {
             path: '/about',
@@ -40,11 +76,13 @@ const router = new Router({
         },
         {
             path: '*',
-            redirect: '/home'
+            component: () => import(/* webpackChunkName: "page404" */ '../views/404.vue'),
+            meta: {
+                requiresAuth: false,
+            },
         }
     ]
 })
-
 
 
 export default router
