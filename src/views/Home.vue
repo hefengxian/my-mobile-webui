@@ -4,7 +4,7 @@
             style="height: 50px; line-height: 50px;"
             title="标题"
             left-arrow
-            fixed="true"
+            :fixed="true"
         >
             <van-icon
                 name="wap-nav"
