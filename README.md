@@ -2,8 +2,25 @@
 
 KWM 移动网页版，弥补 APP 可能在平台受限的问题
 
+采用 [PWA](https://developers.google.com/web/progressive-web-apps/) 实现，需要注意的是：
+
+1. PWA 在 IOS 支持受限，但是 Apple 提供了自己的解决方案
+2. Android 平台较系统版本较低的平台支持也是受限的，并且国产手机内置的浏览器支持非常不好；需要下载最新的 Chrome 浏览器
+3. Android 要想完整的安装 PWA 为一个 APK 并且可以在应用列表显示需要翻墙（猜测可能是某些资源需要到 Google 下载）
+4. 没有翻墙的时候也可以用过 Chrome 添加，但是可能只是一个快捷方式，但是总体体验还是可以
+
+
+- PWA Android 安装要满足三个条件，可以通过 Chrome Dev Tools Audit 功能来检查（查看 Installable 节）
+    - Uses HTTPS
+    - Registers a service worker that controls page and start_url
+    - Web app manifest meets the installability requirements
+- Android PWA 虽然可以使用推送等功能，但是推送需要经过 Google 的服务器，也是要翻墙才能使用
+- IOS 不支持 PWA，但是支持添加到主屏；体验也还可以（无法使用高级的推送功能）
+
 
 ## 功能规划
+
+**V1 规划** （基本对标现有 APP 已经实现功能）
 
 - [ ] 登录
 - [ ] 分类信息浏览；查看、筛选、操作分类信息
@@ -15,6 +32,8 @@ KWM 移动网页版，弥补 APP 可能在平台受限的问题
 
 
 ## 界面设计
+
+
 
 ## 代码规范
 
