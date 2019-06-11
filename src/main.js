@@ -3,23 +3,24 @@ import App from './App'
 import router from './router/router'
 import {store} from './store/store'
 import './registerServiceWorker'
+import LocalStore from './plugin/local-store/'
+import Api from './api/'
+import {isTokenValid} from './util'
 
 Vue.config.productionTip = false
 
+Vue.use(LocalStore)
+Vue.use(Api)
+
+
+
+// 全局路由过滤（先于 App.vue）
 router.beforeEach((to, from, next) => {
   // app
-  console.log('router.beforeEach')
-
+  // console.log('router.beforeEach', LocalStore.store.getItem(LocalStore.keys.OAUTH_KEY))
+  const token = LocalStore.store.getItem(LocalStore.keys.OAUTH_KEY)
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    // store.state.global.loading = true
-    /*setTimeout(() => {
-      // store.state.global.loading = false
-      let random = Math.round(Math.random())
-
-    }, 500)*/
-    let isLogin = true
-
-    // console.log(isLogin, random)
+    let isLogin = isTokenValid(token)
     if (!isLogin) {
       next({
         path: '/login',

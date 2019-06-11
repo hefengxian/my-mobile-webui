@@ -44,10 +44,8 @@
             }
         },
         created() {
-            console.log('home created')
         },
         mounted() {
-            console.log('home mounted')
         },
         methods: {}
     }
