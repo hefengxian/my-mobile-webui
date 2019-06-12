@@ -1,3 +1,5 @@
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
+
 module.exports = {
     publicPath: './',
     /*devServer: {
@@ -29,5 +31,13 @@ module.exports = {
             // ...其它 Workbox 选项...
         }*/
 
+    },
+
+    configureWebpack: {
+        plugins: [
+            new MomentLocalesPlugin({
+                localesToKeep: [/*'es-us', */'zh-cn'],
+            }),
+        ]
     }
 }
