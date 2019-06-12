@@ -22,6 +22,8 @@
         </van-nav-bar>
 
         <div class="main-container">
+            <div class="total-count">共有 {{formatNumber(total)}} 篇文章</div>
+
             <div v-show="loading">
                 <div
                     class="skeleton-wrapper"
@@ -94,6 +96,15 @@
                     </div>
                 </div>
             </div>
+
+            <van-pagination
+                v-show="total > 0"
+                v-model="query.Page_No"
+                :items-per-page="query.Page_Size"
+                :total-items="total"
+                @change="doQuery"
+                mode="simple"
+            />
         </div>
     </div>
 </template>
@@ -101,6 +112,7 @@
 <script>
     import Vue from 'vue'
     import moment from 'moment'
+    import {formatNumber} from "../util"
     import {
         NavBar,
         Cell,
@@ -109,7 +121,8 @@
         Skeleton,
         Tag,
         Checkbox,
-        TabbarItem,
+        Pagination,
+        Toast,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -119,7 +132,7 @@
         .use(CellGroup)
         .use(Tag)
         .use(Checkbox)
-        .use(TabbarItem)
+        .use(Pagination)
 
 
     // 新版的 Moment.js 需要手动导入地区
@@ -137,7 +150,7 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: 'today',
+                    Extracted_Time$InDate: 'yesterday',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -156,18 +169,7 @@
         watch: {},
 
         created() {
-            // 请求数据
-            let params = this.query
-            // 文章列表
-            this.loading = true
-            this.$api.article.articleList(params).then(resp => {
-                this.articles = resp.data.list.map(v => {
-                    v._check = false
-                    return v
-                })
-                this.loading = false
-            })
-            // 文章总量
+            this.doQuery(true)
         },
 
         mounted() {
@@ -175,6 +177,7 @@
         destroyed() {
         },
         methods: {
+            formatNumber,
             /**
              * 处理发布时间格式化
              *
@@ -194,6 +197,36 @@
                     }
                 }
                 return result
+            },
+
+            doQuery(reset = false) {
+                // 请求数据
+                let params = this.query
+                // 文章列表
+                this.loading = true
+                Toast.loading({
+                    duration: 0,
+                    message: '加载中...'
+                })
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    // behavior: 'smooth'
+                })
+                this.$api.article.articleList(params).then(resp => {
+                    this.articles = resp.data.list.map(v => {
+                        v._check = false
+                        return v
+                    })
+                    this.loading = false
+                    Toast.clear()
+
+                })
+                // 文章总量
+                this.$api.article.articleListCount(params).then(resp => {
+                    // console.log(resp)
+                    this.total = resp.data.total
+                })
             },
 
             /**
@@ -267,6 +300,15 @@
 </script>
 
 <style lang="less">
+    .total-count {
+        padding: 8px 0;
+        display: block;
+        color: #AAA;
+        font-size: 12px;
+        text-align: center;
+        // margin: 8px 0;
+    }
+    
     .classify-list {
         & .article-card {
             display: flex;
@@ -275,6 +317,10 @@
             margin-top: 8px;
             font-size: 14px;
             line-height: 1.8;
+
+            &:first-child {
+                margin-top: 0;
+            }
 
             & .card-left {
                 display: flex;
@@ -286,7 +332,7 @@
             & .card-right {
                 display: flex;
                 flex-direction: column;
-                min-width: 0;
+                min-width: 100%;
                 min-height: 90px;
 
                 & .article-content:active {

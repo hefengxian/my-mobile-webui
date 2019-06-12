@@ -68,13 +68,10 @@ Powered by Knowlesys Inc.      /___/`
 
 <style lang="less">
     html {
-
+        background: #f5f5f5;
         font-family: inherit!important;
-        // font-size: 16px;
     }
     #app {
-        background: #f5f5f5;
-        min-height: 100vh;
     }
     .kwm-active {
         background-color: #e6e6e6!important;
@@ -83,12 +80,15 @@ Powered by Knowlesys Inc.      /___/`
     }
     .main-container {
         margin: 50px 0;
-        padding: 8px 0;
+        // padding: 8px 0;
 
         & .skeleton-wrapper {
-            margin: 8px 0;
+            margin-top: 16px;
             background-color: #fff;
             padding: 8px;
+            &:first-child {
+                margin-top: 0;
+            }
         }
     }
 </style>

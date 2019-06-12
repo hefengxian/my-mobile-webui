@@ -32,7 +32,7 @@ const router = new Router({
                 {
                     path: 'search',
                     name: 'Search',
-                    component: () => import(/* webpackChunkName: "list" */ '../views/Search.vue'),
+                    component: () => import(/* webpackChunkName: "search" */ '../views/Search.vue'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -40,7 +40,7 @@ const router = new Router({
                 {
                     path: 'analysis',
                     name: 'Analysis',
-                    component: () => import(/* webpackChunkName: "list" */ '../views/Analysis.vue'),
+                    component: () => import(/* webpackChunkName: "analysis" */ '../views/Analysis.vue'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -48,7 +48,7 @@ const router = new Router({
                 {
                     path: 'personal',
                     name: 'Personal',
-                    component: () => import(/* webpackChunkName: "list" */ '../views/Personal.vue'),
+                    component: () => import(/* webpackChunkName: "personal" */ '../views/Personal.vue'),
                     meta: {
                         requiresAuth: true,
                     },
