@@ -79,7 +79,7 @@
 
                 this.loadingText = '获取令牌...'
                 this.loading = true
-                this.$api.public.login(data).then(resp => {
+                this.$api.login(data).then(resp => {
                     this.loadingText = '成功获取令牌...'
                     let oauth = resp.data
                     // 存储 Token 信息
@@ -90,7 +90,7 @@
                     // 获取其他信息；用户信息，权限信息
                     this.loadingText = '获取用户信息...'
                     Promise.all([
-                        this.$api.system.userInfo(),
+                        this.$api.userInfo(),
                         // this.$api.system.privileges(),
                     ]).then(responses => {
                         this.$localStore.setItem(this.$localStore.keys.USER_KEY, responses[0].data)

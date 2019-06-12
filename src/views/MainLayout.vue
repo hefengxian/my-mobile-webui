@@ -1,6 +1,10 @@
 <template>
     <div class="home">
-        <router-view />
+        <transition>
+            <keep-alive>
+                <router-view></router-view>
+            </keep-alive>
+        </transition>
 
         <van-tabbar
             route

@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app" ontouchstart="" onmouseover="">
         <FullScreenLoading v-show="getLoading"/>
         <router-view v-show="!getLoading"/>
     </div>
@@ -8,6 +8,7 @@
 <script>
     import {mapGetters} from "vuex"
     import FullScreenLoading from "./components/FullScreenLoading";
+    import {isTokenValid} from './util'
 
     // 字符画 LOGO
     const logo = `
@@ -45,6 +46,12 @@ Powered by Knowlesys Inc.      /___/`
 
         created() {
             console.log(logo)
+
+            // 如果已经登录设置 Authorization 请求头到 Axios
+            let token = this.$localStore.getItem(this.$localStore.keys.OAUTH_KEY)
+            if (isTokenValid(token)) {
+                this.$api.setAuthorization(token)
+            }
         },
 
         mounted() {
@@ -54,29 +61,34 @@ Powered by Knowlesys Inc.      /___/`
         },
 
         methods: {
-            isTokenValid(token) {
-                if (typeof token === 'object' && typeof token.access_token === "string") {
-                    // 切割 JWT
-                    let accessToken = token.access_token
-                    let jwt = accessToken.split(/\./)
-                    if (jwt.length !== 3) {
-                        return false
-                    }
-                    let payload = JSON.parse(atob(jwt[1]))
-                    let now = Date.now()
-                    let expire = payload.exp * 1000
-                    return expire > now
-                }
-                return false
-            }
         },
 
     };
 </script>
 
 <style lang="less">
+    html {
+
+        font-family: inherit!important;
+        // font-size: 16px;
+    }
     #app {
-        background-color: #f8f8f8;
+        background: #f5f5f5;
         min-height: 100vh;
+    }
+    .kwm-active {
+        background-color: #e6e6e6!important;
+        position: relative;
+        z-index: 2;
+    }
+    .main-container {
+        margin: 50px 0;
+        padding: 8px 0;
+
+        & .skeleton-wrapper {
+            margin: 8px 0;
+            background-color: #fff;
+            padding: 8px;
+        }
     }
 </style>

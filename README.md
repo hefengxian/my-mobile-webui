@@ -37,6 +37,12 @@ KWM 移动网页版，弥补 APP 可能在平台受限的问题
 
 ## 代码规范
 
+1. 尽量严格遵守 Vue 官方的[风格指南 - Vue.js](https://cn.vuejs.org/v2/style-guide/)
+2. Vant 也有一个简化版的[风格指南](https://youzan.github.io/vant/#/zh-CN/style-guide)
+
+
+
+
 - AuthLoading 加载页面
     + Login 登录页面
     + Main 主页面（框架），包含标题栏，操作按钮，底部主菜单（5个）
