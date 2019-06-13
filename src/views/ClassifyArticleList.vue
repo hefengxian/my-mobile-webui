@@ -3,18 +3,30 @@
         <van-nav-bar
             style="height: 50px; line-height: 50px;"
             left-arrow
-            :fixed="true"
-        >
+            :fixed="true">
             <div
                 class="nav-actions left"
                 slot="left">
                 <div class="nav-action">
                     <van-icon
+                        @click="isDrawShow = true"
                         name="wap-nav"
                         size="17"
                         slot="left"/>
                 </div>
             </div>
+
+            <div slot="title"
+                 style="height: 50px; display: flex; position: relative; flex-direction: column; justify-content: center; align-items: center;">
+                <van-tabs
+                    type="card"
+                    color="#1989fa"
+                    style="width: 170px;">
+                    <van-tab title="最新信息"></van-tab>
+                    <van-tab title="已选信息"></van-tab>
+                </van-tabs>
+            </div>
+
 
             <div
                 class="nav-actions right"
@@ -22,9 +34,11 @@
                 <div class="nav-action">
                     <van-icon
                         size="17"
-                        name="success"/>
+                        name="eye"/>
                 </div>
-                <div class="nav-action">
+                <div
+                    @click="isFilterShow = true"
+                    class="nav-action">
                     <van-icon
                         size="17"
                         name="filter-o"/>
@@ -32,9 +46,16 @@
             </div>
         </van-nav-bar>
 
-        <div class="main-container">
+        <!-- 主内容 -->
+        <div class="main-container" id="container">
+
+            <!-- 文章总数 -->
             <div class="total-count">共有 {{formatNumber(total)}} 篇文章</div>
-            <skeleton v-show="loading" />
+
+            <!-- Skeleton 骨架屏 -->
+            <skeleton v-show="loading"/>
+
+            <!-- 文章列表 -->
             <div v-show="!loading">
                 <article-item
                     v-for="article in articles"
@@ -42,6 +63,7 @@
                     :key="article['Article_Detail_ID']"/>
             </div>
 
+            <!-- 分页 -->
             <van-pagination
                 v-show="total > 0"
                 v-model="query.Page_No"
@@ -51,6 +73,57 @@
                 mode="simple"
             />
         </div>
+
+        <van-popup
+            v-model="isFilterShow"
+            style="height: 80%; width: 100%; background-color: #fff;"
+            position="top">
+            <div>
+
+            </div>
+        </van-popup>
+        <van-popup
+            v-model="isDrawShow"
+            style="height: 100%; width: 75%; background-color: #fff;"
+            position="left">
+            <div>
+                <van-cell-group>
+                    <van-cell title="单元格" value="内容" />
+                    <van-cell title="单元格" value="内容" label="描述信息" />
+                </van-cell-group>
+                <div class="block-title">分类</div>
+                <van-collapse
+                    v-model="subjectActiveName"
+                    accordion>
+                    <van-collapse-item
+                        v-for="j in 5"
+                        :title="`分组 - ${j}`"
+                        icon="pending-payment"
+                        :name="`${j}`">
+                        <van-cell
+                            v-for="i in 5"
+                            clickable
+                            icon="debit-pay"
+                            :title="`主题 - ${i}`" />
+                    </van-collapse-item>
+                </van-collapse>
+                <div class="block-title">媒体类型</div>
+                <van-collapse v-model="mediaActiveName" accordion>
+                    <van-collapse-item
+                        v-for="j in 5"
+                        icon="send-gift-o"
+                        :title="`标题-${j}`"
+                        :name="`${j}`">
+                        <van-cell
+                            v-for="i in 5"
+                            icon="chat"
+                            clickable
+                            :title="`单元格-${i}`" />
+                    </van-collapse-item>
+                </van-collapse>
+
+            </div>
+        </van-popup>
     </div>
 </template>
 
@@ -69,6 +142,11 @@
         Checkbox,
         Pagination,
         Toast,
+        Popup,
+        Tab,
+        Tabs,
+        Collapse,
+        CollapseItem ,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -78,6 +156,11 @@
         .use(Tag)
         .use(Checkbox)
         .use(Pagination)
+        .use(Popup)
+        .use(Tab)
+        .use(Tabs)
+        .use(Collapse)
+        .use(CollapseItem)
 
     export default {
         name: "ClassifyArticleList",
@@ -90,13 +173,19 @@
 
         data() {
             return {
+                subjectActiveName: '',
+                mediaActiveName: '',
+
                 loading: true,
                 isHLLoaded: false,
+                isFilterShow: false,
+                isDrawShow: false,
                 highlighter: null,
+
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: 'today',
+                    Extracted_Time$InDate: '2019/06/13 12:00:00 - 2019/06/13 12:30:00',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -189,6 +278,13 @@
         font-size: 12px;
         text-align: center;
         // margin: 8px 0;
+    }
+    .block-title {
+        margin: 0;
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(69,90,100,.6);
+        padding: 25px 15px 15px;
     }
 
     .nav-actions {
