@@ -44,7 +44,7 @@
 <script>
     import Vue from 'vue'
     import LocalStore from '../plugin/local-store/'
-    import {isTokenValid} from '../util'
+    import {isTokenValid} from '../util/assist'
     import {Row, Col, Field, CellGroup, Button, Notify} from 'vant'
 
     Vue.use(Row)
@@ -61,7 +61,7 @@
             return {
                 loading: false,
                 loadingText: '',
-                username: '',
+                username: 'hefengxian',
                 password: '',
                 year: date.getFullYear()
             }
@@ -109,8 +109,7 @@
         beforeRouteEnter(to, from, next) {
             const token = LocalStore.store.getItem(LocalStore.keys.OAUTH_KEY)
             const isValid = isTokenValid(token)
-            console.log('Login beforeRouteEnter() Token is valid', isTokenValid(token))
-
+            // console.log('Login beforeRouteEnter() Token is valid', isTokenValid(token))
             if (isValid) {
                 // 如果用户已经登录了，直接进入主页
                 next('/')

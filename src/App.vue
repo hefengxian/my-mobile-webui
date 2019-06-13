@@ -8,7 +8,7 @@
 <script>
     import {mapGetters} from "vuex"
     import FullScreenLoading from "./components/FullScreenLoading";
-    import {isTokenValid} from './util'
+    import {isTokenValid} from './util/assist'
 
     // 字符画 LOGO
     const logo = `
@@ -69,10 +69,39 @@ Powered by Knowlesys Inc.      /___/`
 <style lang="less">
     html {
         background: #f5f5f5;
-        font-family: inherit!important;
+        //font-family: inherit!important;
     }
     #app {
+        .keyword {
+            &-focus {
+                color: #00a854 !important;
+            }
+            &-black-list {
+                text-decoration: line-through;
+                color: #E67E22 !important;
+            }
+            &-exclude {
+                text-decoration: line-through;
+                color: #BDC3C7 !important;
+            }
+            &-negative {
+                color: #f04134 !important;
+            }
+            &-positive {
+                color: #146C8C !important;
+            }
+            &-extract-search {
+                color: #8E44AD !important;
+            }
+            &-search {
+                padding: .2em;
+                background-color: #f89633 !important;
+                color: #000 !important;
+            }
+        }
     }
+
+
     .kwm-active {
         background-color: #e6e6e6!important;
         position: relative;

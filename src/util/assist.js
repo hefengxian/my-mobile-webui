@@ -1,6 +1,6 @@
 
 
-export const isTokenValid = function (token) {
+export function isTokenValid(token) {
     if (token && token.access_token && typeof token.access_token === "string") {
         // 切割 JWT
         let accessToken = token.access_token
@@ -18,6 +18,6 @@ export const isTokenValid = function (token) {
 }
 
 
-export const formatNumber = function (num) {
+export function formatNumber(num) {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }

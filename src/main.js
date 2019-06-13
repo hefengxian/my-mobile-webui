@@ -5,14 +5,17 @@ import {store} from './store/store'
 import './registerServiceWorker'
 import LocalStore from './plugin/local-store/'
 import Api from './api/'
-import {isTokenValid} from './util'
+import {isTokenValid} from './util/assist'
+import moment from 'moment'
+
+// 新版的 Moment.js 需要手动导入地区
+moment.locale('zh-cn')
+Vue.prototype.$moment = moment
 
 Vue.config.productionTip = false
 
 Vue.use(LocalStore)
 Vue.use(Api)
-
-
 
 // 全局路由过滤（先于 App.vue）
 router.beforeEach((to, from, next) => {
