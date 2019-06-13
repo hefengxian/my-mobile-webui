@@ -2,6 +2,7 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
 
 module.exports = {
     publicPath: './',
+    productionSourceMap: false,
     /*devServer: {
         host: '0.0.0.0',
         hot: true,
