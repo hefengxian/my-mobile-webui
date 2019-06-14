@@ -19,11 +19,14 @@
             <div slot="title"
                  style="height: 50px; display: flex; position: relative; flex-direction: column; justify-content: center; align-items: center;">
                 <van-tabs
+                    @click="handleTabClick"
                     type="card"
                     color="#1989fa"
                     style="width: 170px;">
-                    <van-tab title="最新信息"></van-tab>
-                    <van-tab title="已选信息"></van-tab>
+                    <van-tab
+                        title="最新信息" />
+                    <van-tab
+                        title="已选信息" />
                 </van-tabs>
             </div>
 
@@ -47,7 +50,7 @@
         </van-nav-bar>
 
         <!-- 主内容 -->
-        <div class="main-container" id="container">
+        <div class="main-container">
 
             <!-- 文章总数 -->
             <div class="total-count">共有 {{formatNumber(total)}} 篇文章</div>
@@ -88,39 +91,108 @@
             position="left">
             <div>
                 <van-cell-group>
-                    <van-cell title="单元格" value="内容" />
-                    <van-cell title="单元格" value="内容" label="描述信息" />
+                    <van-cell
+                        center
+                        :title="u.User_Name"
+                        :label="`${u.Client_Name} - ${u.Role_Name}`">
+                        <img
+                            slot="icon"
+                            src="https://img.yzcdn.cn/vant/cat.jpeg"
+                            style="width: 40px; height: 40px; border-radius: 20px; margin-right: 16px;"
+                            alt="">
+                    </van-cell>
                 </van-cell-group>
+
+
+                <!-- 分类 -->
                 <div class="block-title">分类</div>
                 <van-collapse
+                    class="list-menu"
                     v-model="subjectActiveName"
+                    :border="false"
                     accordion>
+
+                    <van-cell
+                        icon="award-o"
+                        clickable
+                        class="list-item-all"
+                        :border="true"
+                        @click="handleQueryParamChange('Subject_ID$In')"
+                        title="所有">
+                        <van-icon
+                            v-if="query.Subject_ID$In === ''"
+                            color="#07c160"
+                            name="success"
+                        />
+                    </van-cell>
+
                     <van-collapse-item
-                        v-for="j in 5"
-                        :title="`分组 - ${j}`"
-                        icon="pending-payment"
-                        :name="`${j}`">
-                        <van-cell
-                            v-for="i in 5"
-                            clickable
-                            icon="debit-pay"
-                            :title="`主题 - ${i}`" />
-                    </van-collapse-item>
-                </van-collapse>
-                <div class="block-title">媒体类型</div>
-                <van-collapse v-model="mediaActiveName" accordion>
-                    <van-collapse-item
-                        v-for="j in 5"
+                        v-for="category in subjectCategories"
                         icon="send-gift-o"
-                        :title="`标题-${j}`"
-                        :name="`${j}`">
+                        :key="category.Subject_Category_Name"
+                        :title="category.Subject_Category_Name"
+                        :name="category.Subject_Category_ID">
                         <van-cell
-                            v-for="i in 5"
-                            icon="chat"
+                            class="list-item-all"
+                            @click="handleQueryParamChange('Subject_ID$In', subject.Subject_ID)"
+                            v-for="subject in category.subjects"
+                            :icon="subject.icon ? subject.icon : 'debit-pay'"
+                            :key="subject.Subject_ID"
                             clickable
-                            :title="`单元格-${i}`" />
+                            :title="subject.Subject_Name">
+                            <van-icon
+                                v-if="query.Subject_ID$In === subject.Subject_ID"
+                                color="#07c160"
+                                name="success"
+                            />
+                        </van-cell>
                     </van-collapse-item>
                 </van-collapse>
+
+                <!-- 媒体类型 -->
+                <div class="block-title">媒体类型</div>
+                <van-collapse
+                    v-model="mediaActiveName"
+                    class="list-menu"
+                    accordion>
+                    <van-cell
+                        icon="award-o"
+                        clickable
+                        class="list-item-all"
+                        :border="true"
+                        @click="handleQueryParamChange('Media_Type_Code$In')"
+                        title="所有">
+                        <van-icon
+                            v-if="query.Media_Type_Code$In === ''"
+                            color="#07c160"
+                            name="success"
+                        />
+                    </van-cell>
+
+                    <van-collapse-item
+                        v-for="group in mediaTypeGroups"
+                        :title="group.label"
+                        :key="group.value"
+                        icon="pending-payment"
+                        :name="group.value">
+
+                        <van-cell
+                            v-for="media in group.children"
+                            @click="handleQueryParamChange('Media_Type_Code$In', media.Media_Type_Code)"
+                            clickable
+                            :key="media.Media_Type_Code"
+                            :icon="media.icon ? media.icon : 'debit-pay'"
+                            :border="true"
+                            :title="media.Media_Type_Name">
+                            <van-icon
+                                v-if="query.Media_Type_Code$In === media.Media_Type_Code"
+                                color="#07c160"
+                                name="success"
+                            />
+                        </van-cell>
+                    </van-collapse-item>
+                </van-collapse>
+                <!-- /媒体类型 -->
 
             </div>
         </van-popup>
@@ -146,7 +218,7 @@
         Tab,
         Tabs,
         Collapse,
-        CollapseItem ,
+        CollapseItem,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -172,10 +244,13 @@
         props: {},
 
         data() {
+            // 用户信息
+            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
+
             return {
+                u,
                 subjectActiveName: '',
                 mediaActiveName: '',
-
                 loading: true,
                 isHLLoaded: false,
                 isFilterShow: false,
@@ -185,7 +260,8 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: '2019/06/13 12:00:00 - 2019/06/13 12:30:00',
+                    Extracted_Time$InDate: '2019/06/14 12:00:00 - 2019/06/14 12:30:00',
+                    // Extracted_Time$InDate: 'today',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -197,6 +273,8 @@
                 },
                 articles: [],
                 total: 0,
+                mediaTypeGroups: [],
+                subjectCategories: [],
             }
         },
 
@@ -207,6 +285,35 @@
             this.doQuery(true)
             // 获取高亮词，初始化高亮组件
             this.initHighlighter()
+
+            // 获取所有的媒体类型
+            this.$api.common.selectHelper('media_type,tag_list').then(resp => {
+                let medias = resp.data.result['media_type']
+                let mediaTypeGroups = [
+                    {label: '新闻', value: 'N', children: []},
+                    {label: '自媒体', value: 'P', children: []},
+                    {label: '论坛', value: 'F', children: []},
+                    {label: '多媒体', value: 'M', children: []},
+                    {label: '其它', value: 'O', children: []},
+                ]
+                // console.log(medias)
+                this.mediaTypeGroups = mediaTypeGroups.map(group => {
+                    let groupMedias = medias.filter(m => group.value === m.Media_Type_Group_Code)
+                    let all = {
+                        Media_Type_Code: groupMedias.map(m => m.Media_Type_Code).join(','),
+                        Media_Type_Group_Code: group.value,
+                        Media_Type_Name: "所有",
+                        icon: 'award-o',
+                    }
+                    group.children = [all, ...groupMedias]
+                    return group
+                })
+            })
+
+            this.$api.article.subjectTree().then(resp => {
+                let {data} = resp
+                this.subjectCategories = data.result
+            })
         },
 
         mounted() {
@@ -215,6 +322,24 @@
         },
         methods: {
             formatNumber,
+
+            handleTabClick(index, title) {
+                let value = index === 0 ? '' : 'S'
+                this.handleQueryParamChange('User_Process_Status$$', value)
+            },
+
+
+            /**
+             * 执行查询
+             *
+             * @param {string} key 哪一个条件，对应 query 对象的键
+             * @param {string} value 值
+             */
+            handleQueryParamChange(key, value = '') {
+                this.isDrawShow = false
+                this.query[key] = value
+                this.doQuery(true)
+            },
             initHighlighter() {
                 this.$api.article.highlightWords({type: 'focus'}).then(resp => {
                     this.highlighter = HLFactory.getInstance(resp.data)
@@ -228,19 +353,27 @@
                 return v
             },
 
+
+            /**
+             * 执行查询
+             *
+             * @param {boolean} reset 是否重置页码
+             */
             doQuery(reset = false) {
-                // 请求数据
+                if (reset) {
+                    // 重置页码
+                    this.query.Page_No = 1
+                }
                 let params = this.query
-                // 文章列表
+
+                // 加载提示
                 this.loading = true
-                Toast.loading({
-                    duration: 0,
-                    message: '加载中...'
-                })
-                window.scrollTo({
-                    top: 0,
-                    left: 0,
-                })
+                Toast.loading({duration: 0, message: '加载中...'})
+
+                // 滚动到页头
+                window.scrollTo({top: 0, left: 0})
+
+
                 this.$api.article.articleList(params).then(resp => {
                     this.articles = resp.data.list.map(v => {
                         v._Article_Title = v.Article_Title
@@ -256,16 +389,13 @@
                     })
                     this.loading = false
                     Toast.clear()
-
-                    // 文章总量
-                    this.$api.article.articleListCount(params).then(resp => {
-                        // console.log(resp)
-                        this.total = resp.data.total
-                    })
+                })
+                // 文章总量
+                this.$api.article.articleListCount(params).then(resp => {
+                    // console.log(resp)
+                    this.total = resp.data.total
                 })
             },
-
-
         }
     }
 </script>
@@ -279,12 +409,29 @@
         text-align: center;
         // margin: 8px 0;
     }
+
     .block-title {
         margin: 0;
         font-weight: 400;
-        font-size: 14px;
-        color: rgba(69,90,100,.6);
+        font-size: 12px;
+        color: rgba(69, 90, 100, .6);
         padding: 25px 15px 15px;
+    }
+
+    .list-item-all:after {
+        left: 0 !important;
+    }
+
+    .list-menu {
+        & .van-collapse-item__content {
+            padding: 0 0 0 15px !important;
+            /*& .van-cell {
+                padding-left: 30px;
+                &:after {
+                    left: 30px!important;
+                }
+            }*/
+        }
     }
 
     .nav-actions {
