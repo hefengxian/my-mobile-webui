@@ -24,9 +24,9 @@
                     color="#1989fa"
                     style="width: 170px;">
                     <van-tab
-                        title="最新信息" />
+                        title="最新信息"/>
                     <van-tab
-                        title="已选信息" />
+                        title="已选信息"/>
                 </van-tabs>
             </div>
 
@@ -37,7 +37,8 @@
                 <div class="nav-action">
                     <van-icon
                         size="17"
-                        name="eye"/>
+                        name="eye"
+                        @click="readAll"/>
                 </div>
                 <div
                     @click="isFilterShow = true"
@@ -72,7 +73,7 @@
                 v-model="query.Page_No"
                 :items-per-page="query.Page_Size"
                 :total-items="total"
-                @change="doQuery"
+                @change="() => doQuery()"
                 mode="simple"
             />
         </div>
@@ -81,8 +82,78 @@
             v-model="isFilterShow"
             style="height: 80%; width: 100%; background-color: #fff;"
             position="top">
-            <div>
+            <div style="position: relative; height: 100%; overflow-y: auto;">
+                <van-search placeholder="请输入搜索关键词"/>
+                <div style="padding: 0 16px; margin-bottom: 50px;">
+                    <template
+                        v-for="(filter, index) in filters">
+                        <div
+                            class="block-title van-ellipsis"
+                            style="padding-left: 0; padding-top: 0; display: flex">
+                            <div style="flex: 1;padding-right: 8px;">{{filter.title}}</div>
+                            <div
+                                v-if="filter.datePicker && filter.datePicker.isSelect(query[filter.value])"
+                                class="van-ellipsis">{{query[filter.value]}}
+                            </div>
+                        </div>
+                        <van-row gutter="16">
+                            <van-col
+                                v-for="item in filter.data"
+                                :key="item.value"
+                                span="8">
+                                <van-button
+                                    style="margin-bottom: 16px;"
+                                    square
+                                    :type="item.value === query[filter.value] ? 'info' : 'default'"
+                                    size="small"
+                                    class="van-ellipsis"
+                                    block
+                                    @click="query[filter.value] = item.value"
+                                >{{item.label}}
+                                </van-button>
+                            </van-col>
+                            <van-col
+                                v-if="filter.datePicker"
+                                span="8">
+                                <van-button
+                                    style="margin-bottom: 16px;"
+                                    square
+                                    :type="filter.datePicker.isSelect(query[filter.value]) ? 'info' : 'default'"
+                                    @click="filter.datePicker.show = !filter.datePicker.show"
+                                    size="small"
+                                    class="van-ellipsis"
+                                    block>{{`自定义...`}}
+                                </van-button>
+                            </van-col>
+                        </van-row>
 
+                        <date-range-picker
+                            v-if="filter.datePicker"
+                            v-show="filter.datePicker.show"
+                            :value="query[filter.value]"
+                            style="margin-bottom: 16px"
+                            @cancel="filter.datePicker.show = false"
+                            @confirm="val => {query[filter.value] = val; filter.datePicker.show = false}"
+                        />
+                    </template>
+                </div>
+            </div>
+            <div style="position: absolute; bottom: 0; width: 100%; display: flex; z-index: 5">
+                <van-button
+                    style="flex: 1"
+                    square
+                    block
+                    type="default"
+                    @click="resetFilter">重置
+                </van-button>
+                <van-button
+                    style="flex: 1"
+                    square
+                    block
+                    type="info"
+                    @click="() => {doQuery(true); isFilterShow = false}"
+                >确定
+                </van-button>
             </div>
         </van-popup>
         <van-popup
@@ -121,8 +192,8 @@
                         title="所有">
                         <van-icon
                             v-if="query.Subject_ID$In === ''"
-                            color="#07c160"
-                            name="success"
+                            color="#1989fa"
+                            name="checked"
                         />
                     </van-cell>
 
@@ -142,8 +213,8 @@
                             :title="subject.Subject_Name">
                             <van-icon
                                 v-if="query.Subject_ID$In === subject.Subject_ID"
-                                color="#07c160"
-                                name="success"
+                                color="#1989fa"
+                                name="checked"
                             />
                         </van-cell>
                     </van-collapse-item>
@@ -164,8 +235,8 @@
                         title="所有">
                         <van-icon
                             v-if="query.Media_Type_Code$In === ''"
-                            color="#07c160"
-                            name="success"
+                            color="#1989fa"
+                            name="checked"
                         />
                     </van-cell>
 
@@ -186,8 +257,8 @@
                             :title="media.Media_Type_Name">
                             <van-icon
                                 v-if="query.Media_Type_Code$In === media.Media_Type_Code"
-                                color="#07c160"
-                                name="success"
+                                color="#1989fa"
+                                name="checked"
                             />
                         </van-cell>
                     </van-collapse-item>
@@ -204,7 +275,8 @@
     import HLFactory from '../util/highlight/highlighter-factory'
     import ArticleItem from '../components/ArticleItem'
     import Skeleton from '../components/Skeleton'
-    import {formatNumber} from "../util/assist"
+    import DateRangePicker from '../components/DateRangePicker'
+    import {formatNumber, isDateRangeValid} from "../util/assist"
     import {
         NavBar,
         Cell,
@@ -219,6 +291,12 @@
         Tabs,
         Collapse,
         CollapseItem,
+        Row,
+        Col,
+        Search,
+        Button,
+        DatetimePicker,
+        Dialog,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -233,6 +311,12 @@
         .use(Tabs)
         .use(Collapse)
         .use(CollapseItem)
+        .use(Row)
+        .use(Col)
+        .use(Search)
+        .use(Button)
+        .use(DatetimePicker)
+        .use(Dialog)
 
     export default {
         name: "ClassifyArticleList",
@@ -240,6 +324,7 @@
         components: {
             ArticleItem,
             Skeleton,
+            DateRangePicker,
         },
         props: {},
 
@@ -260,8 +345,7 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: '2019/06/14 12:00:00 - 2019/06/14 12:30:00',
-                    // Extracted_Time$InDate: 'today',
+                    Extracted_Time$InDate: 'today',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -275,6 +359,90 @@
                 total: 0,
                 mediaTypeGroups: [],
                 subjectCategories: [],
+
+                timeFilters: [],
+
+                filters: [
+                    {
+                        datePicker: {
+                            show: false,
+                            value: '',
+                            isSelect: isDateRangeValid, // 如果时间格式满足指定的时间范围格式就代表当前选择了自定义时间
+                        },
+                        title: '采集时间',          // 筛选项的标题
+                        value: 'Extracted_Time$InDate',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
+                        data: [
+                            {label: '最近 3 小时', value: 'pasthours_3'},
+                            {label: '最近 18 小时', value: 'pasthours_18'},
+                            {label: '今天', value: 'today'},
+                            {label: '昨天', value: 'yesterday'},
+                            {label: '最近 3 天', value: 'pastdays_3'},
+                            {label: '最近 7 天', value: 'pastdays_7'},
+                            {label: '本周', value: 'thisweek'},
+                            {label: '本月', value: 'thismonth'},
+                        ],           // 选项，数组
+                    },
+                    {
+                        datePicker: {
+                            show: false,
+                            value: '',
+                            isSelect: isDateRangeValid, // 如果时间格式满足指定的时间范围格式就代表当前选择了自定义时间
+                        },
+                        title: '发布时间',          // 筛选项的标题
+                        value: 'Article_PubTime$InDate',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
+                        data: [
+                            {label: '所有', value: ''},
+                            {label: '最近 3 小时', value: 'pasthours_3'},
+                            {label: '最近 18 小时', value: 'pasthours_18'},
+                            {label: '今天', value: 'today'},
+                            {label: '昨天', value: 'yesterday'},
+                            {label: '最近 3 天', value: 'pastdays_3'},
+                            {label: '最近 7 天', value: 'pastdays_7'},
+                            {label: '本周', value: 'thisweek'},
+                            {label: '本月', value: 'thismonth'},
+                            {label: '空', value: 'NULL'},
+                        ],           // 选项，数组
+                    },
+                    {
+                        title: '情感属性',          // 筛选项的标题
+                        value: 'Emotion_Type$$',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
+                        data: [
+                            {label: '所有', value: ''},
+                            {label: '疑似负面', value: '3'},
+                            {label: '疑似正面', value: '1'},
+                            {label: '确认负面', value: '6'},
+                            {label: '确认正面', value: '4'},
+                        ],           // 选项，数组
+                    },
+                    {
+                        title: '文章状态',          // 筛选项的标题
+                        value: 'User_Process_Status$$',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
+                        data: [
+                            {label: '所有', value: ''},
+                            {label: '未读', value: 'N'},
+                            {label: '已读', value: 'U'},
+                            {label: '已选', value: 'S'},
+                        ],           // 选项，数组
+                    },
+                    {
+                        title: '排序',          // 筛选项的标题
+                        value: 'Order_By',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
+                        data: [
+                            {
+                                label: '相关度',
+                                value: 'Total_Score$DESC'
+                            },
+                            {
+                                label: '采集时间',
+                                value: 'Article_Extracted_Time$DESC'
+                            },
+                            {
+                                label: '发布时间',
+                                value: 'Article_PubTime$DESC'
+                            },
+                        ],           // 选项，数组
+                    },
+                ]
             }
         },
 
@@ -322,6 +490,39 @@
         },
         methods: {
             formatNumber,
+
+            readAll() {
+                let needMark = this.articles.filter(v => {
+                    return ['U', 'S', 'R'].indexOf(v['User_Process_Status']) < 0
+                })
+
+                if (needMark.length < 1) {
+                    Toast('没有文章是未读状态！')
+                    return
+                }
+
+                Dialog.confirm({
+                    title: '标记已读',
+                    message: `确定要将 ${needMark.length} 篇未读文章标记为已读？`,
+                }).then(() => {
+                    let ids = needMark.map(v => v.Article_Detail_ID)
+                    this.$api.article.readArticle({Ids: ids.join(',')}).then(resp => {
+                        console.log(resp.data)
+                    })
+                    this.articles = this.articles.map(v => {
+                        if (ids.indexOf(v.Article_Detail_ID) > -1) {
+                            v.User_Process_Status = 'U'
+                        }
+                        return v
+                    })
+                }).catch(cancel => {
+                    // Do nothing
+                })
+            },
+
+            markAsRead(article) {
+
+            },
 
             handleTabClick(index, title) {
                 let value = index === 0 ? '' : 'S'
@@ -396,6 +597,15 @@
                     this.total = resp.data.total
                 })
             },
+
+            resetFilter() {
+                this.query.Extracted_Time$InDate = 'today'
+                this.query.Article_PubTime$InDate = ''
+                this.query.Emotion_Type$$ = ''
+                this.query.User_Process_Status$$ = ''
+                this.query.Order_By = 'Total_Score$DESC'
+                this.query.Keyword = ''
+            }
         }
     }
 </script>
@@ -412,10 +622,9 @@
 
     .block-title {
         margin: 0;
-        font-weight: 400;
         font-size: 12px;
         color: rgba(69, 90, 100, .6);
-        padding: 25px 15px 15px;
+        padding: 20px 15px 10px;
     }
 
     .list-item-all:after {
