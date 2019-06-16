@@ -64,7 +64,9 @@
                 <article-item
                     v-for="article in articles"
                     :article="article"
-                    :key="article['Article_Detail_ID']"/>
+                    :key="article.Article_Detail_ID">
+
+                </article-item>
             </div>
 
             <!-- 分页 -->
@@ -86,7 +88,7 @@
                 <van-search placeholder="请输入搜索关键词"/>
                 <div style="padding: 0 16px; margin-bottom: 50px;">
                     <template
-                        v-for="(filter, index) in filters">
+                        v-for="filter in filters">
                         <div
                             class="block-title van-ellipsis"
                             style="padding-left: 0; padding-top: 0; display: flex">
@@ -345,7 +347,7 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: 'today',
+                    Extracted_Time$InDate: '2019/06/15 12:00:00 - 2019/06/15 12:20:00',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -518,10 +520,6 @@
                 }).catch(cancel => {
                     // Do nothing
                 })
-            },
-
-            markAsRead(article) {
-
             },
 
             handleTabClick(index, title) {

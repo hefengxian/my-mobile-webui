@@ -5,7 +5,7 @@
         <div class="article-stats">
             <emotion
                 class="article-stat"
-                :article="article" />
+                :article="a" />
             <van-icon
                 v-if="isSelect"
                 color="#07c160"
@@ -14,7 +14,7 @@
                 name="certificate" />
 
             <van-tag
-                v-for="tag in article.Tags"
+                v-for="tag in a.Tags"
                 :key="tag.Tag_ID"
                 class="article-stat"
                 color="#7232dd"
@@ -24,55 +24,53 @@
         <div class="card-left">
             <van-checkbox
                 v-if="false"
-                v-model="article._check"
+                v-model="a._check"
                 style="margin-right: 16px" />
         </div>
         <div class="card-right">
             <div class="article-content">
                 <div
                     class="article-title"
-                    v-html="article.Article_Title"></div>
+                    v-html="a.Article_Title"></div>
                 <div
                     class="article-abstract"
-                    v-html="article.Article_Abstract"></div>
+                    v-html="a.Article_Abstract"></div>
                 <div class="article-meta">
-                    <div class="meta-item">{{getMetaInfo(article)}}</div>
+                    <div class="meta-item">{{getMetaInfo(a)}}</div>
                 </div>
 
             </div>
 
+            <!-- 操作按钮 -->
             <div class="article-actions">
-                <ul class="left-actions">
-                    <li class="article-action"
-                        @click="markAsRead">
-                        <van-icon
-                            size="16"
-                            name="eye-o"/>
-                        &nbsp;{{isReadOnly ? '标记未读' : '标记已读'}}
-                    </li>
-                    <li class="article-action"
-                        @click="select">
-                        <van-icon
-                            size="16"
-                            name="success"/>
-                        &nbsp;选择
-                    </li>
-                    <li class="article-action"
-                        @click="setTag">
-                        <van-icon
-                            size="16"
-                            name="label-o"/>
-                        &nbsp;打标签
-                    </li>
-                    <li class="article-action"
-                        @click="more">
-                        <van-icon
-                            size="16"
-                            name="ellipsis"/>
-                    </li>
-                </ul>
+                <van-button
+                    v-for="(action, index) in actions"
+                    :key="index"
+                    size="small"
+                    style="border: none;"
+                    :icon="action.icon"
+                    square
+                    :disabled="action.disabled"
+                    loading-type="spinner"
+                    loading-size="12"
+                    :loading="action.loading"
+                    block
+                    type="default"
+                    @click="action.onClick"
+                >{{action.text}}</van-button>
+
             </div>
         </div>
+
+        <!-- 情感 ActionSheet -->
+        <van-action-sheet
+            v-model="isShowEmotionSelectSheet"
+            :actions="emotionActions"
+            close-on-click-action
+            get-container="#app"
+            cancel-text="取消"
+            @select="onEmotionActionSheetSelect"
+        />
     </div>
 </template>
 
@@ -88,7 +86,8 @@
         Skeleton,
         Tag,
         Checkbox,
-        Pagination,
+        ActionSheet,
+        Toast,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -98,7 +97,8 @@
         .use(CellGroup)
         .use(Tag)
         .use(Checkbox)
-        .use(Pagination)
+        .use(ActionSheet)
+        .use(Toast)
 
     export default {
         name: "ArticleItem",
@@ -112,22 +112,78 @@
             }
         },
         data() {
-            return {}
+            return {
+                a: this.article,
+                isShowEmotionSelectSheet: false,
+                emotionActions: [
+                    {
+                        key: 1,
+                        name: '正面',
+                    },
+                    {
+                        key: 0,
+                        name: '中性',
+                    },
+                    {
+                        key: -1,
+                        name: '负面',
+                    },
+                ],
+                isReadLoading: false,
+                isSelectLoading: false,
+                isTagLoading: false,
+            }
         },
         computed: {
             isReadOnly() {
                 // 仅仅是已读状态（不包含已选等其他操作）
-                return ['U'/*, 'S', 'R'*/].indexOf(this.article['User_Process_Status']) > -1
+                return ['U'/*, 'S', 'R'*/].indexOf(this.a['User_Process_Status']) > -1
             },
             isRead() {
                 // 包括已选等状态
-                return ['U', 'S', 'R'].indexOf(this.article['User_Process_Status']) > -1
+                return ['U', 'S', 'R'].indexOf(this.a['User_Process_Status']) > -1
             },
             isSelect() {
-                return this.article['User_Process_Status'] === 'S'
+                return this.a['User_Process_Status'] === 'S'
+            },
+            actions() {
+                return [
+                    {
+                        icon: 'eye-o',
+                        disabled: this.isSelect,
+                        loading: this.isReadLoading,
+                        onClick: this.markAsRead,
+                        text: this.isReadOnly ? '未读' : '已读'
+                    },
+                    {
+                        icon: this.isSelect ? 'cross' : 'success',
+                        disabled: false,
+                        loading: this.isSelectLoading,
+                        onClick: this.select,
+                        text: this.isSelect ? '取消' : '选择'
+                    },
+                    {
+                        icon: 'bookmark-o',
+                        disabled: false,
+                        loading: this.isTagLoading,
+                        onClick: this.setTag,
+                        text: '标签'
+                    },
+                    {
+                        icon: 'ellipsis',
+                        disabled: false,
+                        loading: false,
+                        onClick: this.more,
+                        text: ''
+                    },
+                ]
             }
         },
-        watch: {},
+        watch: {
+            article(val) {
+                this.a = val
+            }
+        },
         created() {
         },
         mounted() {
@@ -135,36 +191,6 @@
         destroyed() {
         },
         methods: {
-            markAsRead() {
-                // 只有未读、或者仅仅是已读才可以操作
-                let params = {
-                    Ids: this.article.Article_Detail_ID
-                }
-                if (this.isReadOnly) {
-                    // 标记成未读状态
-                    this.$api.article.cancelReadArticle(params).then(resp => {
-                        this.article.User_Process_Status = 'N'
-                    })
-                }
-                if (!this.isRead) {
-                    // 未读文章，标记成已读
-                    this.$api.article.readArticle(params).then(resp => {
-                        this.article.User_Process_Status = 'U'
-                    })
-                }
-            },
-
-            select() {
-            },
-
-            setTag(article) {
-
-            },
-
-            more() {
-
-            },
-
             /**
              * 处理发布时间格式化
              *
@@ -186,6 +212,12 @@
                 return result
             },
 
+            /**
+             * 处理文章基本信息，方便展示
+             *
+             * @param {object} article
+             * @returns {string}
+             */
             getMetaInfo(article) {
                 let contents = []
 
@@ -209,6 +241,84 @@
                 let domainName = article['Domain_Name'] === null ? '-' : article['Domain_Name']
                 contents.push(domainName)
                 return contents.join(' · ')
+            },
+
+            /**
+             * 标记已读、未读
+             */
+            markAsRead() {
+                // 只有未读、或者仅仅是已读才可以操作
+                let params = {
+                    Ids: this.a.Article_Detail_ID
+                }
+                if (this.isReadOnly) {
+                    // 标记成未读状态
+                    this.isReadLoading = true
+                    this.$api.article.cancelReadArticle(params).then(resp => {
+                        // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
+                        this.a.User_Process_Status = 'N'
+                        this.isReadLoading = false
+                    })
+                } else if (!this.isRead) {
+                    // 未读文章，标记成已读
+                    this.isReadLoading = true
+                    this.$api.article.readArticle(params).then(resp => {
+                        // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
+                        this.a.User_Process_Status = 'U'
+                        this.isReadLoading = false
+                    })
+                } else {
+                    Toast('已选信息不能修改阅读状态')
+                }
+            },
+
+
+            /**
+             * 选择文章、取消选择
+             */
+            select() {
+                if (this.isSelect) {
+                    // 取消选择
+                    let params = {
+                        Ids: this.a.Article_Detail_ID,
+                        User_Process_Status: 'U'
+                    }
+                    this.isSelectLoading = true
+                    this.$api.article.cancelSelectArticle(params).then(resp => {
+                        // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
+                        this.a.User_Process_Status = 'U'
+                        this.isSelectLoading = false
+                    })
+                } else {
+                    this.isShowEmotionSelectSheet = true
+                }
+            },
+
+
+            /**
+             * 选择时选择情感之后的回调
+             */
+            onEmotionActionSheetSelect(action) {
+                let params = {
+                    Ids: this.a.Article_Detail_ID,
+                    Emotion_Type: action.key,
+                    User_Process_Status: 'S'
+                }
+                this.isSelectLoading = true
+                this.$api.article.selectArticle(params).then(resp => {
+                    // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
+                    this.a.User_Process_Status = 'S'
+                    this.a.User_Confirm_Emotion_Type = action.key
+                    this.isSelectLoading = false
+                })
+            },
+
+            setTag() {
+
+            },
+
+            more() {
+
             },
         }
     }
