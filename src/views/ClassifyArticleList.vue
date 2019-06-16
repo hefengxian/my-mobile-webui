@@ -85,7 +85,10 @@
             style="height: 80%; width: 100%; background-color: #fff;"
             position="top">
             <div style="position: relative; height: 100%; overflow-y: auto;">
-                <van-search placeholder="请输入搜索关键词"/>
+                <van-search
+                    v-model="query.Keyword"
+                    type="text"
+                    placeholder="请输入搜索关键词"/>
                 <div style="padding: 0 16px; margin-bottom: 50px;">
                     <template
                         v-for="filter in filters">
