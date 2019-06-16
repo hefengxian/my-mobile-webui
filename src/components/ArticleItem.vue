@@ -43,25 +43,29 @@
 
             <div class="article-actions">
                 <ul class="left-actions">
-                    <li class="article-action">
+                    <li class="article-action"
+                        @click="markAsRead">
                         <van-icon
                             size="16"
                             name="eye-o"/>
                         &nbsp;{{isReadOnly ? '标记未读' : '标记已读'}}
                     </li>
-                    <li class="article-action">
+                    <li class="article-action"
+                        @click="select">
                         <van-icon
                             size="16"
                             name="success"/>
                         &nbsp;选择
                     </li>
-                    <li class="article-action">
+                    <li class="article-action"
+                        @click="setTag">
                         <van-icon
                             size="16"
                             name="label-o"/>
                         &nbsp;打标签
                     </li>
-                    <li class="article-action">
+                    <li class="article-action"
+                        @click="more">
                         <van-icon
                             size="16"
                             name="ellipsis"/>
@@ -96,8 +100,6 @@
         .use(Checkbox)
         .use(Pagination)
 
-
-
     export default {
         name: "ArticleItem",
         mixins: [],
@@ -117,7 +119,10 @@
                 // 仅仅是已读状态（不包含已选等其他操作）
                 return ['U'/*, 'S', 'R'*/].indexOf(this.article['User_Process_Status']) > -1
             },
-
+            isRead() {
+                // 包括已选等状态
+                return ['U', 'S', 'R'].indexOf(this.article['User_Process_Status']) > -1
+            },
             isSelect() {
                 return this.article['User_Process_Status'] === 'S'
             }
@@ -130,6 +135,35 @@
         destroyed() {
         },
         methods: {
+            markAsRead() {
+                // 只有未读、或者仅仅是已读才可以操作
+                let params = {
+                    Ids: this.article.Article_Detail_ID
+                }
+                if (this.isReadOnly) {
+                    // 标记成未读状态
+                    this.$api.article.cancelReadArticle(params).then(resp => {
+                        this.article.User_Process_Status = 'N'
+                    })
+                }
+                if (!this.isRead) {
+                    // 未读文章，标记成已读
+                    this.$api.article.readArticle(params).then(resp => {
+                        this.article.User_Process_Status = 'U'
+                    })
+                }
+            },
+
+            select() {
+            },
+
+            setTag(article) {
+
+            },
+
+            more() {
+
+            },
 
             /**
              * 处理发布时间格式化
