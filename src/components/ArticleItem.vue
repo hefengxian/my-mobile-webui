@@ -392,6 +392,8 @@
                     margin: 8px 0;
                     color: #444;
                     font-size: 0.85rem;
+                    word-break: break-all;
+                    white-space: normal;
                 }
 
                 & .article-tag {
