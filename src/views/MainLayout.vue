@@ -12,7 +12,7 @@
             <van-tabbar-item
                 replace
                 to="/list"
-                icon="bars">分类信息</van-tabbar-item>
+                icon="bars">信息</van-tabbar-item>
             <van-tabbar-item
                 replace
                 to="/search"
