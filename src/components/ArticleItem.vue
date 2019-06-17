@@ -132,6 +132,7 @@
 <script>
     import Vue from 'vue'
     import Emotion from './Emotion'
+    import TagSelector from './TagSelector/'
 
     import {
         NavBar,
@@ -233,7 +234,7 @@
                         disabled: false,
                         loading: this.isTagLoading,
                         onClick: () => {
-                            this.isShowTagSelector = true
+                            TagSelector.show(this.tagGroups, this.article)
                         },
                         text: '标签'
                     },
@@ -255,7 +256,7 @@
         created() {
         },
         mounted() {
-            this.initTags()
+            // this.initTags()
         },
         destroyed() {
         },
