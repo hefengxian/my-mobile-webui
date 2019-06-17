@@ -5,27 +5,27 @@
         <div class="article-stats">
             <emotion
                 class="article-stat"
-                :article="a" />
+                :article="a"/>
             <van-icon
                 v-if="isSelect"
                 color="#07c160"
                 size="20"
                 class="article-stat"
-                name="certificate" />
+                name="certificate"/>
 
             <van-tag
                 v-for="tag in a.Tags"
                 :key="tag.Tag_ID"
                 class="article-stat"
                 color="#7232dd"
-                plain>{{tag.Tag}}
-            </van-tag>
+                plain
+            >{{tag.Tag}}</van-tag>
         </div>
         <div class="card-left">
             <van-checkbox
                 v-if="false"
                 v-model="a._check"
-                style="margin-right: 16px" />
+                style="margin-right: 16px"/>
         </div>
         <div class="card-right">
             <div class="article-content">
@@ -57,7 +57,8 @@
                     block
                     type="default"
                     @click="action.onClick"
-                >{{action.text}}</van-button>
+                >{{action.text}}
+                </van-button>
 
             </div>
         </div>
@@ -71,6 +72,60 @@
             cancel-text="取消"
             @select="onEmotionActionSheetSelect"
         />
+
+        <!-- Tag Popup -->
+        <van-popup
+            v-model="isShowTagSelector"
+            position="bottom"
+            get-container="#app"
+            class="ksm-tag-select"
+        >
+            <div class="tag-list">
+                <van-tabs
+                    class="tags"
+                    color="#1989fa"
+                >
+                    <van-tab
+                        v-for="(group, gIndex) in tgs"
+                        :key="group.class_id"
+                        :title="group.class_name">
+                        <van-cell
+                            v-for="(tag, tIndex) in group.tags"
+                            :key="tag.Tag_ID"
+                            :title="tag.Tag"
+                            center
+                            clickable
+                            icon="bookmark-o"
+                            @click="handleTagClick(gIndex, tIndex)">
+                            <van-icon
+                                v-if="tag._checked"
+                                slot="right-icon"
+                                name="checked"
+                                color="#1989fa"
+                            />
+                        </van-cell>
+                    </van-tab>
+                </van-tabs>
+
+                <div class="tag-actions">
+                    <van-button
+                        square
+                        block
+                        type="default"
+                        @click="isShowTagSelector = false">取消
+                    </van-button>
+                    <van-button
+                        square
+                        block
+                        type="info"
+                        @click="setTag"
+                    >确定
+                    </van-button>
+                </div>
+            </div>
+
+
+        </van-popup>
     </div>
 </template>
 
@@ -88,6 +143,7 @@
         Checkbox,
         ActionSheet,
         Toast,
+        Popup,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -99,6 +155,7 @@
         .use(Checkbox)
         .use(ActionSheet)
         .use(Toast)
+        .use(Popup)
 
     export default {
         name: "ArticleItem",
@@ -109,12 +166,18 @@
         props: {
             article: {
                 type: Object
+            },
+            tagGroups: {
+                type: Array,
+                default: []
             }
         },
         data() {
             return {
                 a: this.article,
+                tgs: this.tagGroups,
                 isShowEmotionSelectSheet: false,
+                isShowTagSelector: false,
                 emotionActions: [
                     {
                         key: 1,
@@ -146,6 +209,9 @@
             isSelect() {
                 return this.a['User_Process_Status'] === 'S'
             },
+            articleTagIds() {
+                return this.a.Tags.map(v => v.Tag_ID)
+            },
             actions() {
                 return [
                     {
@@ -166,7 +232,9 @@
                         icon: 'bookmark-o',
                         disabled: false,
                         loading: this.isTagLoading,
-                        onClick: this.setTag,
+                        onClick: () => {
+                            this.isShowTagSelector = true
+                        },
                         text: '标签'
                     },
                     {
@@ -182,11 +250,12 @@
         watch: {
             article(val) {
                 this.a = val
-            }
+            },
         },
         created() {
         },
         mounted() {
+            this.initTags()
         },
         destroyed() {
         },
@@ -211,6 +280,7 @@
                 }
                 return result
             },
+
 
             /**
              * 处理文章基本信息，方便展示
@@ -242,6 +312,7 @@
                 contents.push(domainName)
                 return contents.join(' · ')
             },
+
 
             /**
              * 标记已读、未读
@@ -313,8 +384,45 @@
                 })
             },
 
-            setTag() {
+            initTags() {
+                this.tgs = this.tgs.map(g => {
+                    g.tags = g.tags.map(t => {
+                        t._checked = this.articleTagIds.indexOf(t.Tag_ID) > -1
+                        return t
+                    }).sort((a, b) => {
+                        if (a._checked) {
+                            return -1
+                        }
+                    })
+                    return g
+                })
+            },
 
+            handleTagClick(gIndex, tIndex) {
+                let tags = this.tgs[gIndex]
+                tags.tags[tIndex]._checked = !tags.tags[tIndex]._checked
+                this.$set(this.tgs, gIndex, tags)
+            },
+
+            setTag() {
+                let currentSelectTags = []
+                this.tgs.forEach(g => {
+                    let ts = g.tags.filter(t => t._checked)
+                    currentSelectTags = [...currentSelectTags, ...ts]
+                })
+
+                let currentSelectTagIds = currentSelectTags.map(t => t.Tag_ID)
+                let removed = this.articleTagIds.filter(c => currentSelectTagIds.indexOf(c) < 0)
+                let added = currentSelectTagIds.filter(c => removed.indexOf(c) < 0)
+
+                if (removed.length > 0) {
+                    this.$api.article.removeTag({Articles: this.a.Article_Detail_ID, Tags: removed.join(',')})
+                }
+                if (added.length > 0) {
+                    this.$api.article.addTag({Articles: this.a.Article_Detail_ID, Tags: added.join(',')})
+                }
+                this.a.Tags = currentSelectTags
+                this.isShowTagSelector = false
             },
 
             more() {
@@ -350,6 +458,9 @@
                 top: 4px;
                 left: 0;
                 display: flex;
+                overflow: auto;
+                word-break: keep-all;
+                box-sizing: border-box;
                 align-items: center;
 
                 & .article-stat {

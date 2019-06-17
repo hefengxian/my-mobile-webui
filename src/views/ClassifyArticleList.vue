@@ -64,7 +64,8 @@
                 <article-item
                     v-for="article in articles"
                     :article="article"
-                    :key="article.Article_Detail_ID">
+                    :tag-groups="tagGroups"
+                    :key="article.Article_Detail_ID" >
 
                 </article-item>
             </div>
@@ -350,7 +351,7 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: '2019/06/15 12:00:00 - 2019/06/15 12:20:00',
+                    Extracted_Time$InDate: '2019/06/17 00:00:00 - 2019/06/17 00:30:00',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
@@ -364,8 +365,7 @@
                 total: 0,
                 mediaTypeGroups: [],
                 subjectCategories: [],
-
-                timeFilters: [],
+                tagGroups: [],
 
                 filters: [
                     {
@@ -462,6 +462,9 @@
             // 获取所有的媒体类型
             this.$api.common.selectHelper('media_type,tag_list').then(resp => {
                 let medias = resp.data.result['media_type']
+                let tagGroups = resp.data.result['tag_list']
+                this.tagGroups = Object.values(tagGroups)
+
                 let mediaTypeGroups = [
                     {label: '新闻', value: 'N', children: []},
                     {label: '自媒体', value: 'P', children: []},
@@ -663,6 +666,35 @@
 
             &:active {
                 background-color: #e6e6e6;
+            }
+        }
+    }
+
+    .ksm-tag-select {
+        height: 70%;
+        background-color: #f5f5f5;
+
+        & .tag-list {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+
+            & .tags {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+
+                & .van-tabs__wrap {
+                }
+
+                & .van-tabs__content {
+                    flex: 1;
+                    overflow-y: auto;
+                }
+            }
+
+            & .tag-actions {
+                display: flex;
             }
         }
     }
