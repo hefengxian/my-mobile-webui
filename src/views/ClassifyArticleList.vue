@@ -18,17 +18,17 @@
             <div slot="title"
                  class="title-action">
                 <van-tabs
-                    @click="handleTabClick"
+                    :active="activeTagMenu"
                     type="card"
-                    color="#1989fa"
-                    style="width: 170px;">
+                    :color="activeColor"
+                    style="width: 170px;"
+                    @click="handleTabClick">
                     <van-tab
                         title="最新信息"/>
                     <van-tab
                         title="已选信息"/>
                 </van-tabs>
             </div>
-
 
             <div
                 class="nav-actions right"
@@ -196,7 +196,7 @@
                         title="所有">
                         <van-icon
                             v-if="query.Subject_ID$In === ''"
-                            color="#1989fa"
+                            :color="activeColor"
                             name="checked"
                         />
                     </van-cell>
@@ -217,7 +217,7 @@
                             :title="subject.Subject_Name">
                             <van-icon
                                 v-if="query.Subject_ID$In === subject.Subject_ID"
-                                color="#1989fa"
+                                :color="activeColor"
                                 name="checked"
                             />
                         </van-cell>
@@ -239,7 +239,7 @@
                         title="所有">
                         <van-icon
                             v-if="query.Media_Type_Code$In === ''"
-                            color="#1989fa"
+                            :color="activeColor"
                             name="checked"
                         />
                     </van-cell>
@@ -261,7 +261,7 @@
                             :title="media.Media_Type_Name">
                             <van-icon
                                 v-if="query.Media_Type_Code$In === media.Media_Type_Code"
-                                color="#1989fa"
+                                :color="activeColor"
                                 name="checked"
                             />
                         </van-cell>
@@ -338,6 +338,7 @@
 
             return {
                 u,
+                activeColor: '#1989fa',
                 subjectActiveName: '',
                 mediaActiveName: '',
                 loading: true,
@@ -449,7 +450,11 @@
             }
         },
 
-        computed: {},
+        computed: {
+            activeTagMenu() {
+                return this.query.User_Process_Status$$ === 'S' ? 1 : 0
+            },
+        },
         watch: {},
 
         created() {
