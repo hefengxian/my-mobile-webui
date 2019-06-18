@@ -8,16 +8,16 @@
                 :article="a"/>
             <van-icon
                 v-if="isSelect"
-                color="#07c160"
+                :color="activeColor"
                 size="20"
                 class="article-stat"
-                name="certificate"/>
+                name="certificate" />
 
             <van-tag
                 v-for="tag in a.Tags"
                 :key="tag.Tag_ID"
                 class="article-stat"
-                color="#7232dd"
+                :color="activeColor"
                 plain
             >{{tag.Tag}}</van-tag>
         </div>
@@ -119,6 +119,7 @@
         },
         data() {
             return {
+                activeColor: '#1989fa',
                 a: this.article,
                 tgs: this.tagGroups,
                 isShowEmotionSelectSheet: false,
