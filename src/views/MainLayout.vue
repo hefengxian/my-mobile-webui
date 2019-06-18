@@ -6,9 +6,7 @@
             </keep-alive>
         </transition>
 
-        <van-tabbar
-            route
-        >
+        <van-tabbar route>
             <van-tabbar-item
                 replace
                 to="/list"

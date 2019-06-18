@@ -7,17 +7,16 @@
             <div
                 class="nav-actions left"
                 slot="left">
-                <div class="nav-action">
-                    <van-icon
-                        @click="isDrawShow = true"
-                        name="wap-nav"
-                        size="17"
-                        slot="left"/>
-                </div>
+                <van-button
+                    square
+                    class="nav-action"
+                    size="small"
+                    icon="wap-nav"
+                    @click="isDrawShow = true"/>
             </div>
 
             <div slot="title"
-                 style="height: 50px; display: flex; position: relative; flex-direction: column; justify-content: center; align-items: center;">
+                 class="title-action">
                 <van-tabs
                     @click="handleTabClick"
                     type="card"
@@ -34,19 +33,18 @@
             <div
                 class="nav-actions right"
                 slot="right">
-                <div class="nav-action">
-                    <van-icon
-                        size="17"
-                        name="eye"
-                        @click="readAll"/>
-                </div>
-                <div
-                    @click="isFilterShow = true"
-                    class="nav-action">
-                    <van-icon
-                        size="17"
-                        name="filter-o"/>
-                </div>
+                <van-button
+                    square
+                    class="nav-action"
+                    size="small"
+                    icon="eye-o"
+                    @click="readAll"/>
+                <van-button
+                    square
+                    class="nav-action"
+                    size="small"
+                    icon="filter-o"
+                    @click="isFilterShow = true"/>
             </div>
         </van-nav-bar>
 
@@ -65,7 +63,7 @@
                     v-for="article in articles"
                     :article="article"
                     :tag-groups="tagGroups"
-                    :key="article.Article_Detail_ID" >
+                    :key="article.Article_Detail_ID">
 
                 </article-item>
             </div>
@@ -638,35 +636,35 @@
     .list-menu {
         & .van-collapse-item__content {
             padding: 0 0 0 15px !important;
-            /*& .van-cell {
-                padding-left: 30px;
-                &:after {
-                    left: 30px!important;
-                }
-            }*/
         }
     }
 
     .nav-actions {
         display: flex;
         height: 50px;
+        align-items: center;
+
+        &.left .nav-action:first-child {
+            margin-left: -12px;
+        }
 
         &.right .nav-action:last-child {
             margin-right: -12px;
         }
 
-        &.left .nav-action:last-child {
-            margin-left: -12px;
-        }
-
         & .nav-action {
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-
-            &:active {
-                background-color: #e6e6e6;
-            }
+            min-width: 40px;
+            font-size: 16px;
+            border: none;
         }
+    }
+
+    .title-action {
+        height: 50px;
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 </style>
