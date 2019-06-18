@@ -1,6 +1,6 @@
 <template>
     <div
-        :class="{'isRead': isReadOnly}"
+        :class="{'read': isReadOnly}"
         class="article-card">
         <div class="article-stats">
             <emotion
@@ -286,7 +286,7 @@
             font-size: 14px;
             line-height: 1.8;
 
-            &.isRead {
+            &.read {
                 background-color: #f9f9f9;
                 opacity: 0.4;
             }
