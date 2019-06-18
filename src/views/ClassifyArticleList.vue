@@ -60,12 +60,12 @@
             <!-- 文章列表 -->
             <div v-show="!loading">
                 <article-item
-                    v-for="article in articles"
+                    v-for="(article, index) in articles"
                     :article="article"
                     :tag-groups="tagGroups"
-                    :key="article.Article_Detail_ID">
-
-                </article-item>
+                    :key="article.Article_Detail_ID"
+                    @delete="onDelete(index)"
+                />
             </div>
 
             <!-- 分页 -->
@@ -600,6 +600,9 @@
                 })
             },
 
+            /**
+             *
+             */
             resetFilter() {
                 this.query.Extracted_Time$InDate = 'today'
                 this.query.Article_PubTime$InDate = ''
@@ -607,6 +610,15 @@
                 this.query.User_Process_Status$$ = ''
                 this.query.Order_By = 'Total_Score$DESC'
                 this.query.Keyword = ''
+            },
+
+
+            /**
+             * 监听文章 Item 中发起的 delete 事件
+             * @param index
+             */
+            onDelete(index) {
+                this.articles.splice(index, 1)
             }
         }
     }

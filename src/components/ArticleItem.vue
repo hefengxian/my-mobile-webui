@@ -47,7 +47,6 @@
                     v-for="(action, index) in actions"
                     :key="index"
                     size="small"
-                    style="border: none;"
                     :icon="action.icon"
                     square
                     :disabled="action.disabled"
@@ -60,16 +59,6 @@
                 >{{action.text}}</van-button>
             </div>
         </div>
-
-        <!-- 情感 ActionSheet -->
-        <!--<van-action-sheet
-            v-model="isShowEmotionSelectSheet"
-            :actions="emotionActions"
-            close-on-click-action
-            get-container="#app"
-            cancel-text="取消"
-            @select="onEmotionActionSheetSelect"
-        />-->
     </div>
 </template>
 
@@ -78,6 +67,7 @@
     import Emotion from './Emotion'
     import TagSelector from './TagSelector/'
     import EmotionSelector from './EmotionSelector/'
+    import MoreActionSheet from './MoreActionSheet/'
 
     import {
         NavBar,
@@ -176,7 +166,12 @@
                         icon: 'ellipsis',
                         disabled: false,
                         loading: false,
-                        onClick: this.more,
+                        onClick: () => {
+                            MoreActionSheet.show(this.article, () => {
+                                // 删除数据之后的回调，要通知列表去掉当前数据
+                                this.$emit('delete')
+                            })
+                        },
                         text: ''
                     },
                 ]
@@ -275,11 +270,6 @@
                 } else {
                     Toast('已选信息不能修改阅读状态')
                 }
-            },
-
-
-            more() {
-
             },
         }
     }
@@ -401,6 +391,10 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+
+                    & .van-button {
+                        border: none;
+                    }
                 }
             }
         }
