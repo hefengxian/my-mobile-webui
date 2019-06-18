@@ -28,7 +28,9 @@
                 style="margin-right: 16px"/>
         </div>
         <div class="card-right">
-            <div class="article-content">
+            <div
+                class="article-content"
+                @click="goDetail">
                 <div
                     class="article-title"
                     v-html="a.Article_Title"></div>
@@ -38,7 +40,6 @@
                 <div class="article-meta">
                     <div class="meta-item">{{getMetaInfo(a)}}</div>
                 </div>
-
             </div>
 
             <!-- 操作按钮 -->
@@ -271,6 +272,11 @@
                     Toast('已选信息不能修改阅读状态')
                 }
             },
+
+            goDetail() {
+                // TODO 判断是否已读，标记为已读
+                this.$router.push(`/detail/${this.article.Article_Detail_ID}`)
+            }
         }
     }
 </script>

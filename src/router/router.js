@@ -56,6 +56,14 @@ const router = new Router({
             ],
         },
         {
+            path: '/detail/:id',
+            Name: 'ArticleDetail',
+            component: () => import(/* webpackChunkName: "detail" */ '../views/ArticleDetail.vue'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
             path: '/about',
             name: 'about',
             // route level code-splitting
