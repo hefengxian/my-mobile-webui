@@ -350,7 +350,7 @@
                 query: {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
-                    Extracted_Time$InDate: '2019/06/17 00:00:00 - 2019/06/17 00:30:00',
+                    Extracted_Time$InDate: 'today',
                     Article_PubTime$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',

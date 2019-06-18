@@ -61,7 +61,7 @@
             return {
                 loading: false,
                 loadingText: '',
-                username: 'hefengxian',
+                username: '',
                 password: '',
                 year: date.getFullYear()
             }
