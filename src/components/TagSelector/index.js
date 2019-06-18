@@ -11,14 +11,14 @@
 import Vue from 'vue'
 import TagSelector from './TagSelector'
 
-const TagSelectorConstructor = Vue.extend(TagSelector)
+const Constructor = Vue.extend(TagSelector)
 
 let instance
 let vm
 
 function show(tgs, article) {
     if (!instance) {    // 保证一个组件内多次调用只有一个实例，避免渲染更多的 DOM
-        instance = new TagSelectorConstructor()
+        instance = new Constructor()
         vm = instance.$mount()  // 先挂载
     }
 

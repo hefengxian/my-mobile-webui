@@ -77,6 +77,7 @@
     import Vue from 'vue'
     import Emotion from './Emotion'
     import TagSelector from './TagSelector/'
+    import EmotionSelector from './EmotionSelector/'
 
     import {
         NavBar,
@@ -124,20 +125,6 @@
                 tgs: this.tagGroups,
                 isShowEmotionSelectSheet: false,
                 isShowTagSelector: false,
-                emotionActions: [
-                    {
-                        key: 1,
-                        name: '正面',
-                    },
-                    {
-                        key: 0,
-                        name: '中性',
-                    },
-                    {
-                        key: -1,
-                        name: '负面',
-                    },
-                ],
                 isReadLoading: false,
                 isSelectLoading: false,
                 isTagLoading: false,
@@ -168,11 +155,13 @@
                         text: this.isReadOnly ? '未读' : '已读'
                     },
                     {
-                        icon: this.isSelect ? 'cross' : 'success',
+                        icon: 'success',
                         disabled: false,
                         loading: this.isSelectLoading,
-                        onClick: this.select,
-                        text: this.isSelect ? '取消' : '选择'
+                        onClick: () => {
+                            EmotionSelector.show(this.article)
+                        },
+                        text: '选择'
                     },
                     {
                         icon: 'bookmark-o',
@@ -201,7 +190,6 @@
         created() {
         },
         mounted() {
-            // this.initTags()
         },
         destroyed() {
         },
@@ -289,87 +277,6 @@
                 }
             },
 
-
-            /**
-             * 选择文章、取消选择
-             */
-            select() {
-                if (this.isSelect) {
-                    // 取消选择
-                    let params = {
-                        Ids: this.a.Article_Detail_ID,
-                        User_Process_Status: 'U'
-                    }
-                    this.isSelectLoading = true
-                    this.$api.article.cancelSelectArticle(params).then(resp => {
-                        // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
-                        this.a.User_Process_Status = 'U'
-                        this.isSelectLoading = false
-                    })
-                } else {
-                    this.isShowEmotionSelectSheet = true
-                }
-            },
-
-
-            /**
-             * 选择时选择情感之后的回调
-             */
-            onEmotionActionSheetSelect(action) {
-                let params = {
-                    Ids: this.a.Article_Detail_ID,
-                    Emotion_Type: action.key,
-                    User_Process_Status: 'S'
-                }
-                this.isSelectLoading = true
-                this.$api.article.selectArticle(params).then(resp => {
-                    // 使用本地的数据（远端数据可能有延迟，特别是在读写分离的时候）
-                    this.a.User_Process_Status = 'S'
-                    this.a.User_Confirm_Emotion_Type = action.key
-                    this.isSelectLoading = false
-                })
-            },
-
-            initTags() {
-                this.tgs = this.tgs.map(g => {
-                    g.tags = g.tags.map(t => {
-                        t._checked = this.articleTagIds.indexOf(t.Tag_ID) > -1
-                        return t
-                    }).sort((a, b) => {
-                        if (a._checked) {
-                            return -1
-                        }
-                    })
-                    return g
-                })
-            },
-
-            handleTagClick(gIndex, tIndex) {
-                let tags = this.tgs[gIndex]
-                tags.tags[tIndex]._checked = !tags.tags[tIndex]._checked
-                this.$set(this.tgs, gIndex, tags)
-            },
-
-            setTag() {
-                let currentSelectTags = []
-                this.tgs.forEach(g => {
-                    let ts = g.tags.filter(t => t._checked)
-                    currentSelectTags = [...currentSelectTags, ...ts]
-                })
-
-                let currentSelectTagIds = currentSelectTags.map(t => t.Tag_ID)
-                let removed = this.articleTagIds.filter(c => currentSelectTagIds.indexOf(c) < 0)
-                let added = currentSelectTagIds.filter(c => removed.indexOf(c) < 0)
-
-                if (removed.length > 0) {
-                    this.$api.article.removeTag({Articles: this.a.Article_Detail_ID, Tags: removed.join(',')})
-                }
-                if (added.length > 0) {
-                    this.$api.article.addTag({Articles: this.a.Article_Detail_ID, Tags: added.join(',')})
-                }
-                this.a.Tags = currentSelectTags
-                this.isShowTagSelector = false
-            },
 
             more() {
 
@@ -494,35 +401,6 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-
-
-                    & .left-actions {
-                        flex: 1;
-                        display: flex;
-                    }
-
-                    & .right-actions {
-                        display: flex;
-                        align-self: flex-end;
-                    }
-
-                    & .article-action {
-                        height: 30px;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        font-size: 12px;
-                        flex: 1;
-
-                        &:last-child {
-                            justify-content: flex-end;
-                        }
-
-                        &:active {
-                            background-color: #e6e6e6;
-                        }
-                    }
-
                 }
             }
         }
