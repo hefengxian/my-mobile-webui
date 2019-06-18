@@ -1,4 +1,13 @@
 /**
+ * Copyright © 2019-present, Knowlesys Ltd.
+ * All rights reserved.
+ *
+ * @author: 𝑭𝒓𝒂𝒏𝒌 2019-06
+ * @version 1.0
+ */
+
+
+/**
  * 简单的 JWT Token 过期校验
  *
  * @param {object} token JWT Token 对象

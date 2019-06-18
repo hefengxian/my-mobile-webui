@@ -669,35 +669,4 @@
             }
         }
     }
-
-    .ksm-tag-select {
-        height: 70%;
-        background-color: #f5f5f5;
-
-        & .tag-list {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-
-            & .tags {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-
-                & .van-tabs__wrap {
-                }
-
-                & .van-tabs__content {
-                    flex: 1;
-                    overflow-y: auto;
-                }
-            }
-
-            & .tag-actions {
-                display: flex;
-            }
-        }
-    }
-
-
 </style>

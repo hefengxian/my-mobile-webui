@@ -32,9 +32,9 @@
                 <div
                     class="article-title"
                     v-html="a.Article_Title"></div>
-                <div
+                <p
                     class="article-abstract"
-                    v-html="a.Article_Abstract"></div>
+                    v-html="a.Article_Abstract"></p>
                 <div class="article-meta">
                     <div class="meta-item">{{getMetaInfo(a)}}</div>
                 </div>
@@ -57,75 +57,19 @@
                     block
                     type="default"
                     @click="action.onClick"
-                >{{action.text}}
-                </van-button>
-
+                >{{action.text}}</van-button>
             </div>
         </div>
 
         <!-- 情感 ActionSheet -->
-        <van-action-sheet
+        <!--<van-action-sheet
             v-model="isShowEmotionSelectSheet"
             :actions="emotionActions"
             close-on-click-action
             get-container="#app"
             cancel-text="取消"
             @select="onEmotionActionSheetSelect"
-        />
-
-        <!-- Tag Popup -->
-        <van-popup
-            v-model="isShowTagSelector"
-            position="bottom"
-            get-container="#app"
-            class="ksm-tag-select"
-        >
-            <div class="tag-list">
-                <van-tabs
-                    class="tags"
-                    color="#1989fa"
-                >
-                    <van-tab
-                        v-for="(group, gIndex) in tgs"
-                        :key="group.class_id"
-                        :title="group.class_name">
-                        <van-cell
-                            v-for="(tag, tIndex) in group.tags"
-                            :key="tag.Tag_ID"
-                            :title="tag.Tag"
-                            center
-                            clickable
-                            icon="bookmark-o"
-                            @click="handleTagClick(gIndex, tIndex)">
-                            <van-icon
-                                v-if="tag._checked"
-                                slot="right-icon"
-                                name="checked"
-                                color="#1989fa"
-                            />
-                        </van-cell>
-                    </van-tab>
-                </van-tabs>
-
-                <div class="tag-actions">
-                    <van-button
-                        square
-                        block
-                        type="default"
-                        @click="isShowTagSelector = false">取消
-                    </van-button>
-                    <van-button
-                        square
-                        block
-                        type="info"
-                        @click="setTag"
-                    >确定
-                    </van-button>
-                </div>
-            </div>
-
-
-        </van-popup>
+        />-->
     </div>
 </template>
 
@@ -501,10 +445,10 @@
                 }
 
                 & .article-abstract {
-                    margin: 8px 0;
                     color: #444;
                     font-size: 0.85rem;
-                    word-break: break-all;
+                    word-break: break-word;
+                    word-wrap: break-word;
                     white-space: normal;
                 }
 
