@@ -78,8 +78,9 @@
                             <van-cell-group
                                 :border="false">
                                 <van-cell
-                                    v-for="item in metaItems"
+                                    v-for="(item, key) in metaItems"
                                     class="meta-item"
+                                    :key="key"
                                     :title="item.title"
                                     :value="item.value"
                                     center
