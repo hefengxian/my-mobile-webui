@@ -1,7 +1,9 @@
 <template>
     <div id="app" ontouchstart="" onmouseover="">
         <FullScreenLoading v-show="getLoading"/>
-        <router-view v-show="!getLoading"/>
+        <keep-alive>
+            <router-view v-show="!getLoading"/>
+        </keep-alive>
     </div>
 </template>
 
@@ -117,6 +119,38 @@ Powered by Knowlesys Inc.      /___/`
             padding: 8px;
             &:first-child {
                 margin-top: 0;
+            }
+        }
+    }
+
+    .ksm-nav {
+        height: 50px!important;
+        line-height: 50px!important;
+
+        & .van-nav-bar__right {
+            right: 8px;
+        }
+        & .van-nav-bar__left {
+            left: 8px;
+        }
+
+        & .nav-actions {
+            display: flex;
+            height: 50px;
+            align-items: center;
+
+            &.left .nav-action:first-child {
+                // margin-left: -12px;
+            }
+
+            &.right .nav-action:last-child {
+                // margin-right: -12px;
+            }
+
+            & .nav-action {
+                min-width: 40px;
+                font-size: 16px;
+                border: none;
             }
         }
     }
