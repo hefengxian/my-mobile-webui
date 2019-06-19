@@ -12,4 +12,5 @@ export const USER_KEY = 'KSM_USER_KEY'
 export const PRIVILEGE_KEY = 'KSM_PRIVILEGE_KEY'
 export const HL_WORDS = 'KSM_HL_WORDS'
 export const TGS_KEY = 'KSM_TGS_KEY'
+export const SEARCH_KEYWORD_HISTORY = 'KSM_SEARCH_KEYWORD_HISTORY'
 

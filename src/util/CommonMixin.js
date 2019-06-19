@@ -28,18 +28,9 @@ export default {
          */
         initHighlighter(types = ['focus'], reloadKeywords = false) {
             // 从缓存中获取高亮词
-            let words = this.$localStore.getItem(this.$localStore.keys.HL_WORDS)
-            if (words && !reloadKeywords) {
-                // 存在缓存，且不刷新关键词
-                return Promise.resolve(this._doInitHighlighter(words, types))
-            } else {
-                // 没有缓存
-                this.$api.article.highlightWords().then(resp => {
-                    words = resp.data
-                    this.$localStore.setItem(this.$localStore.keys.HL_WORDS, words)
-                    return Promise.resolve(this._doInitHighlighter(words, types))
-                })
-            }
+            this.initKeywords(reloadKeywords).then(words => {
+                this._doInitHighlighter(words, types)
+            })
         },
 
 
@@ -66,6 +57,7 @@ export default {
          * 获取标签列表
          *
          * @param {boolean} refresh 是否刷新缓存
+         * @returns {Promise<any>}
          */
         initTgs(refresh = false) {
             // 从缓存中获取高亮词
@@ -73,7 +65,7 @@ export default {
             if (tgs && !refresh) {
                 this.tgs = tgs
                 this.isTgsLoaded = true
-                return Promise.resolve()
+                return Promise.resolve(tgs)
             } else {
                 let action = 'tag_list'
                 this.$api.common.selectHelper(action).then(resp => {
@@ -82,9 +74,32 @@ export default {
                     this.$localStore.setItem(this.$localStore.keys.TGS_KEY, tgs)
                     this.tgs = tgs
                     this.isTgsLoaded = true
-                    return Promise.resolve()
+                    return Promise.resolve(tgs)
                 })
             }
         },
+
+
+        /**
+         * 初始化各种词
+         *
+         * @param {boolean} refresh 是否刷新缓存
+         * @returns {Promise<any>}
+         */
+        initKeywords(refresh = false) {
+            // 从缓存中获取高亮词
+            let words = this.$localStore.getItem(this.$localStore.keys.HL_WORDS)
+            if (words && !refresh) {
+                // 存在缓存，且不刷新关键词
+                return Promise.resolve(words)
+            } else {
+                // 没有缓存
+                this.$api.article.highlightWords().then(resp => {
+                    words = resp.data
+                    this.$localStore.setItem(this.$localStore.keys.HL_WORDS, words)
+                    return Promise.resolve(words)
+                })
+            }
+        }
     }
 }
