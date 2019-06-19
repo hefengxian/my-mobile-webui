@@ -1,8 +1,7 @@
 <template>
     <div class="classify-list">
         <van-nav-bar
-            style="height: 50px; line-height: 50px;"
-            left-arrow
+            class="ksm-nav"
             :fixed="true">
             <div
                 class="nav-actions left"
@@ -606,7 +605,7 @@
             },
 
             /**
-             *
+             * 重置筛选器
              */
             resetFilter() {
                 this.query.Extracted_Time$InDate = 'today'
@@ -625,7 +624,29 @@
             onDelete(index) {
                 this.articles.splice(index, 1)
             }
-        }
+        },
+        beforeRouteEnter(to, from, next) {
+            next(vm => {
+                // 处理文章详情页的变动
+                if (to.params.article) {
+                    // console.log('list 文章已经变动')
+                    vm.articles = vm.articles.map(a => {
+                        if (a.Article_Detail_ID === to.params.article.Article_Detail_ID) {
+                            return to.params.article
+                        }
+                        return a
+                    })
+                }
+                // 处理在详情页删除了文章
+                if (to.params.delete) {
+                    // console.log('list 文章已经删除')
+                    vm.articles = vm.articles.filter(a => {
+                        return a.Article_Detail_ID !== to.params.delete
+                    })
+                }
+
+            })
+        },
     }
 </script>
 
@@ -653,26 +674,6 @@
     .list-menu {
         & .van-collapse-item__content {
             padding: 0 0 0 15px !important;
-        }
-    }
-
-    .nav-actions {
-        display: flex;
-        height: 50px;
-        align-items: center;
-
-        &.left .nav-action:first-child {
-            margin-left: -12px;
-        }
-
-        &.right .nav-action:last-child {
-            margin-right: -12px;
-        }
-
-        & .nav-action {
-            min-width: 40px;
-            font-size: 16px;
-            border: none;
         }
     }
 

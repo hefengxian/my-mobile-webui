@@ -168,7 +168,7 @@
                         disabled: false,
                         loading: false,
                         onClick: () => {
-                            MoreActionSheet.show(this.article, () => {
+                            MoreActionSheet.show(this.article).then(() => {
                                 // 删除数据之后的回调，要通知列表去掉当前数据
                                 this.$emit('delete')
                             })
@@ -273,8 +273,15 @@
                 }
             },
 
+
+            /**
+             * 点击进入详情页面
+             */
             goDetail() {
-                // TODO 判断是否已读，标记为已读
+                // 判断是否已读，标记为已读
+                if (!this.isRead) {
+                    this.markAsRead()
+                }
                 this.$router.push(`/detail/${this.article.Article_Detail_ID}`)
             }
         }
