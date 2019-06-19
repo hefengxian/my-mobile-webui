@@ -23,7 +23,10 @@ function show(article, onDelete = () => {}) {
     vm.article = article
     vm.init()
     vm.show = true
-    vm.$on('delete', onDelete)
+
+    return new Promise((resolve, reject) => {
+        vm.$on('delete', resolve)
+    })
 }
 
 export default {

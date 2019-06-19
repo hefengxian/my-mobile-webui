@@ -26,6 +26,10 @@ function show(tgs, article) {
     vm.article = article
     vm.initTags()
     vm.show = true
+
+    return new Promise((resolve, reject) => {
+        vm.$on('change', resolve)
+    })
 }
 
 export default {

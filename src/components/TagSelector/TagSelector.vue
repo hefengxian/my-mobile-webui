@@ -66,12 +66,16 @@
         Icon,
         Popup,
         Button,
+        Tab,
+        Tabs,
     } from 'vant'
 
     Vue.use(Icon)
         .use(Cell)
         .use(Popup)
         .use(Button)
+        .use(Tab)
+        .use(Tabs)
 
     export default {
         name: "TagSelector",
@@ -198,6 +202,7 @@
                 this.article.Tags = currentSelectTags
                 // 关闭标签选择窗口
                 this.show = false
+                this.$emit('change')
             },
 
 

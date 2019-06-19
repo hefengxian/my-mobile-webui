@@ -2,6 +2,7 @@
     <van-action-sheet
         v-model="show"
         :actions="actions"
+        class="ksm-more-action"
         close-on-click-action
         get-container="#app"
         cancel-text="取消"
@@ -84,12 +85,14 @@
                         // 删除之后
                         this.$emit('delete')
                     })
-                }).catch(() => {})
+                }).catch(() => {
+                })
             }
         }
     }
 </script>
 
 <style lang="less">
-
+    .ksm-more-action {
+    }
 </style>

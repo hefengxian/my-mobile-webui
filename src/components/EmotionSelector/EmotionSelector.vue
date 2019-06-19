@@ -1,6 +1,7 @@
 <template>
     <van-action-sheet
         v-model="show"
+        class="ksm-emotion-selector"
         :actions="actions"
         close-on-click-action
         get-container="#app"
@@ -101,11 +102,12 @@
                     this.article.User_Process_Status = 'S'
                     this.article.User_Confirm_Emotion_Type = action.key
                 }
+                this.$emit('change')
             }
         }
     }
 </script>
 
 <style lang="less">
-
+    .ksm-emotion-selector{}
 </style>

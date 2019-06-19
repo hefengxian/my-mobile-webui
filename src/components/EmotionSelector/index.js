@@ -23,6 +23,9 @@ function show(article) {
     vm.article = article
     vm.init()
     vm.show = true
+    return new Promise((resolve, reject) => {
+        vm.$on('change', resolve)
+    })
 }
 
 export default {
