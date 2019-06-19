@@ -54,3 +54,15 @@ export function isDateRangeValid(val) {
     let reg = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} - \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/
     return reg.test(val)
 }
+
+
+/**
+ * 检查一个对象的某个属性是否为一个非空字符串
+ *
+ * @param {object} obj
+ * @param {string} attr
+ * @return {boolean}
+ */
+export function isValidString(obj, attr) {
+    return obj[attr] && typeof obj[attr] === 'string' && obj[attr].trim().length > 0
+}
