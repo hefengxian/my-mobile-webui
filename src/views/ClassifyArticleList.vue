@@ -496,6 +496,14 @@
 
         mounted() {
         },
+        activated() {
+            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
+            if (u.User_ID !== this.u.User_ID) {
+                this.u = u
+                // console.log('need refresh')
+                this.doQuery(true)
+            }
+        },
         destroyed() {
         },
         methods: {

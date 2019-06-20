@@ -77,7 +77,9 @@
         name: "Search",
         mixins: [CommonMixin],
         data() {
+            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
             return {
+                u,
                 keyword: '',
                 focusWords: [],
                 histories: [],
@@ -91,6 +93,19 @@
             this.initKeywords().then(words => {
                 this.focusWords = words.focus
             })
+        },
+        activated() {
+            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
+            if (u.User_ID !== this.u.User_ID) {
+                this.u = u
+                let histories = this.$localStore.getItem(this.$localStore.keys.SEARCH_KEYWORD_HISTORY)
+                if (histories) {
+                    this.histories = histories
+                }
+                this.initKeywords().then(words => {
+                    this.focusWords = words.focus
+                })
+            }
         },
         methods: {
             onSearch() {

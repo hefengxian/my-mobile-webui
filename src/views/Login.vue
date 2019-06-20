@@ -58,7 +58,9 @@
         props: {},
         data() {
             let date = new Date()
+            let storedAccounts = this.$localStore.getItem(this.$localStore.keys.STORED_ACCOUNTS) || {}
             return {
+                storedAccounts,
                 loading: false,
                 loadingText: '',
                 username: '',
@@ -93,7 +95,11 @@
                         this.$api.userInfo(),
                         // this.$api.system.privileges(),
                     ]).then(responses => {
-                        this.$localStore.setItem(this.$localStore.keys.USER_KEY, responses[0].data)
+                        let userData = responses[0].data
+                        this.$localStore.setItem(this.$localStore.keys.USER_KEY, userData)
+                        userData.Token = oauth
+                        this.storedAccounts[userData['User_Account']] = userData
+                        this.$localStore.setItem(this.$localStore.keys.STORED_ACCOUNTS, this.storedAccounts)
                         // this.$localStore.setItem(this.$localStore.Keys.PRIVILEGE_KEY, responses[1].data)
                         // 跳转
                         this.loadingText = '成功获取用户信息...'
@@ -107,14 +113,18 @@
             }
         },
         beforeRouteEnter(to, from, next) {
-            const token = LocalStore.store.getItem(LocalStore.keys.OAUTH_KEY)
-            const isValid = isTokenValid(token)
-            // console.log('Login beforeRouteEnter() Token is valid', isTokenValid(token))
-            if (isValid) {
-                // 如果用户已经登录了，直接进入主页
-                next('/')
-            } else {
+            if (to.params.addAccount) {
+                // 如果是来添加账号的不需要跳转
                 next()
+            } else {
+                const token = LocalStore.store.getItem(LocalStore.keys.OAUTH_KEY)
+                const isValid = isTokenValid(token)
+                if (isValid) {
+                    // 如果用户已经登录了，直接进入主页
+                    next('/')
+                } else {
+                    next()
+                }
             }
         }
     }

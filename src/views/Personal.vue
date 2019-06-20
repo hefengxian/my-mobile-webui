@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="ksm-personal">
         <van-nav-bar
             style="height: 50px; line-height: 50px;"
             title="个人中心"
@@ -7,36 +7,40 @@
         >
         </van-nav-bar>
 
-        <div style="margin: 50px 0; padding: 8px 0">
-            <!--<div
-                v-for="i in 10"
-                :key="i"
-                style="margin: 8px 0; background-color: #fff; padding: 8px"
-            >
-                <van-skeleton title :row="2"/>
-            </div>-->
-
-
+        <div class="main-container">
             <van-cell-group>
                 <van-cell
-                    :title="u.User_Name"
-                    :label="`${u.Client_Name} - ${u.Role_Name}`"
+                    v-for="account in storedAccounts"
+                    :key="account.User_ID"
+                    :title="account.User_Name"
+                    :label="`${account.Client_Name} - ${account.Role_Name}`"
                     clickable
-                    center>
+                    center
+                    @click="switchUser(account)">
                     <img
                         slot="icon"
-                        src="https://img.yzcdn.cn/vant/cat.jpeg"
-                        style="width: 40px; height: 40px; border-radius: 20px; margin-right: 16px;"
+                        class="avatar"
+                        :src="`img/avatars/${getAvatarURI(account)}`"
                         alt="">
                     <van-icon
-                        color="#07c160"
+                        v-if="account.User_ID === u.User_ID"
+                        :color="activeColor"
                         slot="right-icon"
-                        name="success" />
+                        name="success"/>
                 </van-cell>
 
-                <!--<van-cell
-                    :title="u.User_Name"
-                    value="内容"/>-->
+
+                <van-cell
+                    clickable
+                    center
+                    :style="{color: activeColor}"
+                    title="添加账号" @click="addAccount">
+                    <div
+                        slot="icon"
+                        class="avatar">
+                        <van-icon name="add-o" />
+                    </div>
+                </van-cell>
             </van-cell-group>
 
             <van-cell-group style="margin-top: 16px;">
@@ -52,32 +56,101 @@
 
 <script>
     import Vue from 'vue'
-    import {NavBar, Icon, Skeleton, Cell, CellGroup, Image} from 'vant'
+    import CommonMixin from '../util/CommonMixin'
+    import {
+        NavBar,
+        Icon,
+        Skeleton,
+        Cell,
+        CellGroup,
+        // SwipeCell,
+        Button,
+    } from 'vant'
 
     Vue.use(NavBar)
         .use(Icon)
         .use(Skeleton)
         .use(Cell)
         .use(CellGroup)
-        .use(Image)
+        // .use(SwipeCell)
+        .use(Button)
 
     export default {
         name: "Personal",
-        data(){
+        mixins: [CommonMixin],
+        data() {
             let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
             return {
-                u
+                activeColor: '#1989fa',
+                u,
+                storedAccounts: {},
             }
+        },
+        mounted() {
         },
         methods: {
             logout() {
-                this.$localStore.clear()
-                this.$router.replace('/login')
+                this.$localStore.logout()
+                // 移除已经存储的用户
+                delete this.storedAccounts[this.u.User_Account]
+                this.$localStore.setItem(this.$localStore.keys.STORED_ACCOUNTS, this.storedAccounts)
+                this.$router.replace({name: 'Login'})
             },
+
+            addAccount() {
+                this.$router.push({name: 'Login', params: {addAccount: true}})
+            },
+
+            getAvatarURI(user) {
+                let name = 'avatar.svg'
+                switch (user.Gender) {
+                    case 'M':
+                        name = 'male.svg'
+                        break
+                    case 'F':
+                        name = 'female.svg'
+                        break
+                    default:
+                        name = 'avatar.svg'
+                        break
+                }
+                return name
+            },
+
+            switchUser(user) {
+                let ls = this.$localStore
+                let token = user.Token
+
+                // 用户信息换成当前的
+                this.u = user
+                // 设置 API 的 Token
+                this.$api.setAuthorization(token)
+                ls.logout()
+                ls.setItem(ls.keys.OAUTH_KEY, token)
+                ls.setItem(ls.keys.USER_KEY, user)
+
+                this.initTgs(true)
+                this.initKeywords(true)
+            }
+        },
+        beforeRouteEnter(to, from, next) {
+            next(vm => {
+                vm.storedAccounts = vm.$localStore.getItem(vm.$localStore.keys.STORED_ACCOUNTS) || {}
+            })
         }
     }
 </script>
 
-<style>
-
+<style lang="less">
+    .ksm-personal {
+        & .avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            margin-right: 16px;
+        }
+    }
 </style>

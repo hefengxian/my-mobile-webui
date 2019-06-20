@@ -91,7 +91,7 @@ const router = new Router({
         },
         {
             path: '/login',
-            name: 'login',
+            name: 'Login',
             component: () => import(/* webpackChunkName: "login" */ '../views/Login'),
             meta: {
                 requiresAuth: false,
