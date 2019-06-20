@@ -11,7 +11,7 @@
                 :color="activeColor"
                 size="20"
                 class="article-stat"
-                name="certificate" />
+                name="certificate"/>
 
             <van-tag
                 v-for="tag in a.Tags"
@@ -19,7 +19,8 @@
                 class="article-stat"
                 :color="activeColor"
                 plain
-            >{{tag.Tag}}</van-tag>
+            >{{tag.Tag}}
+            </van-tag>
         </div>
         <div class="card-left">
             <van-checkbox
@@ -43,7 +44,8 @@
             </div>
 
             <!-- 操作按钮 -->
-            <div class="article-actions">
+            <div v-if="showAction"
+                 class="article-actions">
                 <van-button
                     v-for="(action, index) in actions"
                     :key="index"
@@ -57,7 +59,8 @@
                     block
                     type="default"
                     @click="action.onClick"
-                >{{action.text}}</van-button>
+                >{{action.text}}
+                </van-button>
             </div>
         </div>
     </div>
@@ -107,6 +110,14 @@
             tagGroups: {
                 type: Array,
                 default: []
+            },
+            showAction: {
+                type: Boolean,
+                default: true,
+            },
+            canRead: {
+                type: Boolean,
+                default: true,
             }
         },
         data() {
@@ -279,135 +290,133 @@
              */
             goDetail() {
                 // 判断是否已读，标记为已读
-                if (!this.isRead) {
+                if (this.canRead && !this.isRead) {
                     this.markAsRead()
                 }
-                this.$router.push(`/detail/${this.article.Article_Detail_ID}`)
+                this.$router.push({name: 'ArticleDetail', params: {id: this.article.Article_Detail_ID}})
             }
         }
     }
 </script>
 
 <style lang="less">
-    .classify-list {
-        & .article-card {
-            position: relative;
+    .article-card {
+        position: relative;
+        display: flex;
+        background-color: #fff;
+        padding: 24px 16px 8px 16px;
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.8;
+
+        &.read {
+            background-color: #f9f9f9;
+            opacity: 0.4;
+        }
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        & .article-stats {
+            position: absolute;
+            width: 100%;
+            top: 4px;
+            left: 0;
             display: flex;
-            background-color: #fff;
-            padding: 24px 16px 8px 16px;
-            margin-top: 8px;
-            font-size: 14px;
-            line-height: 1.8;
+            overflow: auto;
+            word-break: keep-all;
+            box-sizing: border-box;
+            align-items: center;
 
-            &.read {
-                background-color: #f9f9f9;
-                opacity: 0.4;
-            }
+            & .article-stat {
+                margin: 0 4px;
 
-            &:first-child {
-                margin-top: 0;
-            }
-
-            & .article-stats {
-                position: absolute;
-                width: 100%;
-                top: 4px;
-                left: 0;
-                display: flex;
-                overflow: auto;
-                word-break: keep-all;
-                box-sizing: border-box;
-                align-items: center;
-
-                & .article-stat {
-                    margin: 0 4px;
-
-                    &:first-child {
-                        margin-left: 0;
-                    }
+                &:first-child {
+                    margin-left: 0;
                 }
             }
+        }
 
-            & .card-left {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
+        & .card-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        & .card-right {
+            display: flex;
+            flex-direction: column;
+            min-width: 100%;
+            min-height: 90px;
+
+            & .article-content:active {
+                background-color: #e6e6e6;
             }
 
-            & .card-right {
-                display: flex;
-                flex-direction: column;
-                min-width: 100%;
-                min-height: 90px;
+            & .article-title {
+                font-size: 1rem;
+                color: #000;
+                // font-weight: bold;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+            }
 
-                & .article-content:active {
-                    background-color: #e6e6e6;
-                }
+            & .article-abstract {
+                color: #444;
+                font-size: 0.85rem;
+                word-break: break-word;
+                word-wrap: break-word;
+                white-space: normal;
+            }
 
-                & .article-title {
-                    font-size: 1rem;
-                    color: #000;
-                    // font-weight: bold;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                }
-
-                & .article-abstract {
-                    color: #444;
-                    font-size: 0.85rem;
-                    word-break: break-word;
-                    word-wrap: break-word;
-                    white-space: normal;
-                }
-
+            & .article-tag {
                 & .article-tag {
-                    & .article-tag {
-                        margin-right: 4px;
+                    margin-right: 4px;
 
-                        &:last-child {
-                            margin-right: 0;
-                        }
+                    &:last-child {
+                        margin-right: 0;
                     }
                 }
+            }
 
-                & .article-meta {
-                    font-size: 0.80rem;
-                    color: #444;
-                    display: flex;
-                    flex-direction: column;
-                    box-sizing: border-box;
+            & .article-meta {
+                font-size: 0.80rem;
+                color: #444;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
 
 
-                    & .meta-item {
-                        flex: 1;
-                        display: block;
-                        padding-right: 4px;
-                        -webkit-box-orient: vertical;
-                        -webkit-box-direction: normal;
-                        line-height: 20px;
-                        max-height: 20px;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
+                & .meta-item {
+                    flex: 1;
+                    display: block;
+                    padding-right: 4px;
+                    -webkit-box-orient: vertical;
+                    -webkit-box-direction: normal;
+                    line-height: 20px;
+                    max-height: 20px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
 
-                        &:last-child {
-                            padding-right: 0;
-                        }
+                    &:last-child {
+                        padding-right: 0;
                     }
                 }
+            }
 
-                & .article-actions {
-                    margin-top: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+            & .article-actions {
+                margin-top: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
 
-                    & .van-button {
-                        border: none;
-                    }
+                & .van-button {
+                    border: none;
                 }
             }
         }
