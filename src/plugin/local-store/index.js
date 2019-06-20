@@ -26,6 +26,11 @@ const getItem = function (key) {
     return value
 }
 
+// 该方法接受一个键名作为参数，并把该键名从存储中删除。
+const removeItem = function(key) {
+    window.localStorage.removeItem(key)
+}
+
 
 const localStore = {
     keys,
@@ -68,14 +73,26 @@ const localStore = {
     },
 
     // 该方法接受一个键名作为参数，并把该键名从存储中删除。
-    removeItem(key) {
-        window.localStorage.removeItem(key)
-    },
+    removeItem,
 
     // 调用该方法会清空存储中的所有键名
     clear() {
         window.localStorage.clear()
     },
+
+    logout() {
+        let cleanList = [
+            keys.OAUTH_KEY,
+            keys.USER_KEY,
+            keys.PRIVILEGE_KEY,
+            keys.HL_WORDS,
+            keys.TGS_KEY,
+            keys.SEARCH_KEYWORD_HISTORY,
+        ]
+        cleanList.forEach(k => {
+            removeItem(k)
+        })
+    }
 }
 
 
