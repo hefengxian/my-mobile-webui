@@ -98,8 +98,17 @@ Powered by Knowlesys Inc.      /___/`
             &-search {
                 padding: .2em;
                 background-color: #f89633 !important;
-                color: #000 !important;
+                border-radius: 4px;
+                color: #fff !important;
             }
+        }
+
+        .total-count {
+            padding: 8px 0;
+            display: block;
+            color: #AAA;
+            font-size: 12px;
+            text-align: center;
         }
     }
 

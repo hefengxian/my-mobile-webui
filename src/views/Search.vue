@@ -3,13 +3,14 @@
         <form action="/">
             <van-search
                 v-model="keyword"
-                placeholder="请输入搜索关键词"
+                placeholder="使用关键词全库搜索"
                 @search="onSearch"
             />
         </form>
         <div class="search-words">
             <template v-if="histories.length > 0">
                 <van-cell
+                    :border="false"
                     title="历史搜索">
                     <van-button
                         slot="right-icon"
@@ -21,26 +22,31 @@
                 </van-cell>
                 <div>
                     <div class="words history-words">
-                        <van-tag
+                        <van-button
                             v-for="(word, index) in histories"
                             :key="index"
                             plain
-                            type="primary"
+                            round
+                            size="mini"
+                            class="word"
                             @click="onKeywordClick(word)"
-                        >{{word}}</van-tag>
+                        >{{word}}</van-button>
                     </div>
                 </div>
             </template>
-            <van-cell title="核心词" />
 
+
+            <van-cell title="核心词" :border="false"/>
             <div class="words focus-words">
-                <van-tag
+                <van-button
                     v-for="(word, index) in focusWords"
                     :key="index"
                     plain
-                    type="primary"
+                    size="mini"
+                    round
+                    class="word"
                     @click="onKeywordClick(word)"
-                >{{word}}</van-tag>
+                >{{word}}</van-button>
             </div>
         </div>
     </div>
@@ -88,11 +94,8 @@
         },
         methods: {
             onSearch() {
-                console.log('on search')
                 this.addHistory(this.keyword)
-            },
-            onCancel() {
-
+                this.$router.push({path: '/search-list', query: {keyword: this.keyword}})
             },
             addHistory(word) {
                 if (typeof word === 'string' && word.trim() !== '') {
@@ -105,7 +108,7 @@
             },
             onKeywordClick(word) {
                 this.keyword = word
-                this.addHistory(word)
+                this.onSearch()
             },
             clearHistory() {
                 this.histories = []
@@ -122,6 +125,10 @@
 
         & .search-words {
 
+            & .van-cell:after {
+                // border: none;
+            }
+
             & .words {
                 padding: 15px;
             }
@@ -130,7 +137,7 @@
                 border: none;
             }
 
-            & .van-tag {
+            & .word {
                 margin: 6px 4px;
             }
         }

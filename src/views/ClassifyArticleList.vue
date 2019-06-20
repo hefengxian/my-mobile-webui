@@ -580,7 +580,6 @@
                 // 滚动到页头
                 window.scrollTo({top: 0, left: 0})
 
-
                 this.$api.article.articleList(params).then(resp => {
                     this.articles = resp.data.list.map(v => {
                         v._Article_Title = v.Article_Title
@@ -651,14 +650,6 @@
 </script>
 
 <style lang="less">
-    .total-count {
-        padding: 8px 0;
-        display: block;
-        color: #AAA;
-        font-size: 12px;
-        text-align: center;
-        // margin: 8px 0;
-    }
 
     .block-title {
         margin: 0;
