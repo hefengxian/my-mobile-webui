@@ -24,12 +24,19 @@ export default {
          * 初始化高亮工具
          *
          * @param {[]} types 要高亮的词性，默认高亮 核心词
+         * @param {string} search 搜索关键词
          * @param {boolean} reloadKeywords 是否要刷新关键词
          */
-        initHighlighter(types = ['focus'], reloadKeywords = false) {
+        initHighlighter(types = ['focus'], search = '', reloadKeywords = false) {
             // 从缓存中获取高亮词
-            this.initKeywords(reloadKeywords).then(words => {
+            return this.initKeywords(reloadKeywords).then(words => {
+                if (search.trim().length > 0) {
+                    // 带搜索词
+                    words.search = search
+                    types.push('search')
+                }
                 this._doInitHighlighter(words, types)
+                return Promise.resolve(this.highlighter)
             })
         },
 
