@@ -101,22 +101,6 @@
                 this.$router.push({name: 'Login', params: {addAccount: true}})
             },
 
-            getAvatarURI(user) {
-                let name = 'avatar.svg'
-                switch (user.Gender) {
-                    case 'M':
-                        name = 'male.svg'
-                        break
-                    case 'F':
-                        name = 'female.svg'
-                        break
-                    default:
-                        name = 'avatar.svg'
-                        break
-                }
-                return name
-            },
-
             switchUser(user) {
                 let ls = this.$localStore
                 let token = user.Token

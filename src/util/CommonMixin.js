@@ -101,12 +101,35 @@ export default {
                 return Promise.resolve(words)
             } else {
                 // 没有缓存
-                this.$api.article.highlightWords().then(resp => {
+                return this.$api.article.highlightWords().then(resp => {
                     words = resp.data
                     this.$localStore.setItem(this.$localStore.keys.HL_WORDS, words)
                     return Promise.resolve(words)
                 })
             }
-        }
+        },
+
+
+        /**
+         * 获取头像图片名称
+         *
+         * @param {object} user
+         * @return {string}
+         */
+        getAvatarURI(user) {
+            let name = 'avatar.svg'
+            switch (user.Gender) {
+                case 'M':
+                    name = 'male.svg'
+                    break
+                case 'F':
+                    name = 'female.svg'
+                    break
+                default:
+                    name = 'avatar.svg'
+                    break
+            }
+            return name
+        },
     }
 }

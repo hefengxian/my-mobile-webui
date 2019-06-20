@@ -171,7 +171,7 @@
                         :label="`${u.Client_Name} - ${u.Role_Name}`">
                         <img
                             slot="icon"
-                            src="https://img.yzcdn.cn/vant/cat.jpeg"
+                            :src="`img/avatars/${getAvatarURI(u)}`"
                             style="width: 40px; height: 40px; border-radius: 20px; margin-right: 16px;"
                             alt="">
                     </van-cell>
@@ -280,6 +280,7 @@
     import Skeleton from '../components/Skeleton'
     import DateRangePicker from '../components/DateRangePicker'
     import {formatNumber, isDateRangeValid} from "../util/assist"
+    import CommonMixin from '../util/CommonMixin'
     import {
         NavBar,
         Cell,
@@ -323,7 +324,7 @@
 
     export default {
         name: "ClassifyArticleList",
-        mixins: [],
+        mixins: [CommonMixin],
         components: {
             ArticleItem,
             Skeleton,
