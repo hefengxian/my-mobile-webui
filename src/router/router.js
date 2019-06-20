@@ -19,7 +19,7 @@ const router = new Router({
             meta: {
                 requiresAuth: true,
             },
-            component: () => import(/* webpackChunkName: "home" */ '../views/MainLayout.vue'),
+            component: () => import(/* webpackChunkName: "home" */ '../views/MainLayout'),
             children: [
                 {
                     path: '/',
@@ -31,7 +31,7 @@ const router = new Router({
                 {
                     path: 'list',
                     name: 'ClassifyArticleList',
-                    component: () => import(/* webpackChunkName: "list" */ '../views/ClassifyArticleList.vue'),
+                    component: () => import(/* webpackChunkName: "list" */ '../views/ClassifyArticleList'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -39,7 +39,7 @@ const router = new Router({
                 {
                     path: 'search',
                     name: 'Search',
-                    component: () => import(/* webpackChunkName: "search" */ '../views/Search.vue'),
+                    component: () => import(/* webpackChunkName: "search" */ '../views/Search'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -47,7 +47,7 @@ const router = new Router({
                 {
                     path: 'analysis',
                     name: 'Analysis',
-                    component: () => import(/* webpackChunkName: "analysis" */ '../views/Analysis.vue'),
+                    component: () => import(/* webpackChunkName: "analysis" */ '../views/Analysis'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -55,7 +55,7 @@ const router = new Router({
                 {
                     path: 'personal',
                     name: 'Personal',
-                    component: () => import(/* webpackChunkName: "personal" */ '../views/Personal.vue'),
+                    component: () => import(/* webpackChunkName: "personal" */ '../views/Personal'),
                     meta: {
                         requiresAuth: true,
                     },
@@ -64,8 +64,16 @@ const router = new Router({
         },
         {
             path: '/detail/:id',
-            Name: 'ArticleDetail',
-            component: () => import(/* webpackChunkName: "detail" */ '../views/ArticleDetail.vue'),
+            name: 'ArticleDetail',
+            component: () => import(/* webpackChunkName: "detail" */ '../views/ArticleDetail'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
+            path: '/search-list',
+            name: 'SearchList',
+            component: () => import(/* webpackChunkName: "search-list" */ '../views/SearchList'),
             meta: {
                 requiresAuth: true,
             },
@@ -76,7 +84,7 @@ const router = new Router({
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
-            component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+            component: () => import(/* webpackChunkName: "about" */ '../views/About'),
             meta: {
                 requiresAuth: false,
             },
@@ -84,14 +92,14 @@ const router = new Router({
         {
             path: '/login',
             name: 'login',
-            component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
+            component: () => import(/* webpackChunkName: "login" */ '../views/Login'),
             meta: {
                 requiresAuth: false,
             },
         },
         {
             path: '*',
-            component: () => import(/* webpackChunkName: "page404" */ '../views/404.vue'),
+            component: () => import(/* webpackChunkName: "page404" */ '../views/404'),
             meta: {
                 requiresAuth: false,
             },
