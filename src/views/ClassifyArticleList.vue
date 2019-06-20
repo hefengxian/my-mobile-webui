@@ -488,10 +488,7 @@
                 })
             })
 
-            this.$api.article.subjectTree().then(resp => {
-                let {data} = resp
-                this.subjectCategories = data.result
-            })
+            this.initSubjectCategories()
         },
 
         mounted() {
@@ -501,6 +498,8 @@
             if (u.User_ID !== this.u.User_ID) {
                 this.u = u
                 // console.log('need refresh')
+                this.initSubjectCategories()
+                this.resetQueryParams()
                 this.doQuery(true)
             }
         },
@@ -625,12 +624,42 @@
 
 
             /**
+             * 重置所有查询条件
+             */
+            resetQueryParams() {
+                this.query = {
+                    Media_Type_Code$In: '',
+                    Subject_ID$In: '',
+                    Extracted_Time$InDate: 'today',
+                    Article_PubTime$InDate: '',
+                    Emotion_Type$$: '',
+                    User_Process_Status$$: '',
+                    Similar: 0,
+                    Order_By: 'Total_Score$DESC',
+                    Keyword: '',
+                    Page_No: 1,
+                    Page_Size: 20,
+                }
+            },
+
+
+            /**
              * 监听文章 Item 中发起的 delete 事件
              * @param index
              */
             onDelete(index) {
                 this.articles.splice(index, 1)
-            }
+            },
+
+            /**
+             * 初始化主题、主题目录
+             */
+            initSubjectCategories() {
+                this.$api.article.subjectTree().then(resp => {
+                    let {data} = resp
+                    this.subjectCategories = data.result
+                })
+            },
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
