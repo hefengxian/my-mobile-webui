@@ -119,6 +119,7 @@
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
+                vm.u = vm.$localStore.getItem(vm.$localStore.keys.USER_KEY)
                 vm.storedAccounts = vm.$localStore.getItem(vm.$localStore.keys.STORED_ACCOUNTS) || {}
             })
         }
