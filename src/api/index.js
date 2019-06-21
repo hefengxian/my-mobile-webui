@@ -9,7 +9,7 @@
 import Axios from 'axios'
 
 // const BASE_URL = 'http://192.168.1.45/php/kwm-next-server/api'
-const BASE_URL = 'https://mymonitor.xyz/kwm/server/api'
+const BASE_URL = window.BASE_URL
 Axios.defaults.baseURL = BASE_URL
 const instance = Axios.create({
     baseURL: BASE_URL,
