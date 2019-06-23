@@ -35,11 +35,16 @@
                 </div>
             </template>
 
-
-            <van-cell title="核心词" :border="false"/>
+            <van-cell
+                title="核心词"
+                :border="false">
+                <span
+                    v-show="focusWords.length > 0"
+                    slot="label">{{`共 ${focusWords.length} 个，已展示 ${currentShowWords.length} 个`}}</span>
+            </van-cell>
             <div class="words focus-words">
                 <van-button
-                    v-for="(word, index) in focusWords"
+                    v-for="(word, index) in currentShowWords"
                     :key="index"
                     plain
                     size="mini"
@@ -47,6 +52,16 @@
                     class="word"
                     @click="onKeywordClick(word)"
                 >{{word}}</van-button>
+                <van-button
+                    v-if="hasMore"
+                    plain
+                    size="mini"
+                    type="info"
+                    round
+                    class="word"
+                    @click="moreWords()">
+                    更多...
+                </van-button>
             </div>
         </div>
     </div>
@@ -73,6 +88,8 @@
         .use(Cell)
         .use(Button)
 
+    const SIZE = 20
+
     export default {
         name: "Search",
         mixins: [CommonMixin],
@@ -82,7 +99,13 @@
                 u,
                 keyword: '',
                 focusWords: [],
+                currentShowWords: [],
                 histories: [],
+            }
+        },
+        computed: {
+            hasMore() {
+                return this.focusWords.length > this.currentShowWords.length
             }
         },
         created(){
@@ -92,6 +115,7 @@
             }
             this.initKeywords().then(words => {
                 this.focusWords = words.focus
+                this.currentShowWords = words.focus.slice(0, SIZE)
             })
         },
         activated() {
@@ -104,6 +128,7 @@
                 }
                 this.initKeywords().then(words => {
                     this.focusWords = words.focus
+                    this.currentShowWords = words.focus.slice(0, SIZE)
                 })
             }
         },
@@ -128,6 +153,13 @@
             clearHistory() {
                 this.histories = []
                 this.$localStore.setItem(this.$localStore.keys.SEARCH_KEYWORD_HISTORY, [])
+            },
+            moreWords() {
+                if (this.hasMore) {
+                    let start = this.currentShowWords.length
+                    let end = start + SIZE
+                    this.currentShowWords = this.currentShowWords.concat(this.focusWords.slice(start, end))
+                }
             }
         }
     }
