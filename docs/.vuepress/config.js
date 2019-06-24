@@ -17,4 +17,12 @@ module.exports = {
             { text: 'IOS', link: '/ios/' },
         ]
     },
+
+    configureWebpack: {
+        resolve: {
+            alias: {
+                '@pub': '/kwmm/docs/'
+            }
+        }
+    }
 }
