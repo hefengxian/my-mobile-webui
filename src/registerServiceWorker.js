@@ -10,8 +10,17 @@ if (process.env.NODE_ENV === 'production') {
         'For more details, visit https://goo.gl/AFskqB'
       )
     },
-    registered () {
+    registered (registration) {
       console.log('Service worker has been registered.')
+
+      // 每次打开检查一次更新
+      // console.log('registration.update()')
+      registration.update()
+      // console.log('registration.update()')
+      /*setInterval(() => {
+        registration.update()
+        console.log('registration.update()')
+      }, 1000 * 60 * 60)    // 1 小时检查一次更新*/
     },
     cached () {
       console.log('Content has been cached for offline use.')
@@ -19,7 +28,11 @@ if (process.env.NODE_ENV === 'production') {
     updatefound () {
       console.log('New content is downloading.')
     },
-    updated () {
+    updated (registration) {
+      // 分发 swUpdated 事件，方便在 Vue 中监听此事件；做出相应的提示
+      document.dispatchEvent(
+          new CustomEvent('swUpdated', {detail: registration})
+      )
       console.log('New content is available; please refresh.')
     },
     offline () {
