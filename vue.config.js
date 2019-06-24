@@ -25,12 +25,13 @@ module.exports = {
         },
 
         // 配置 workbox 插件
-        workboxPluginMode: 'GenerateSW',
-        /*workboxOptions: {
+        workboxPluginMode: 'InjectManifest',
+        workboxOptions: {
             // InjectManifest 模式下 swSrc 是必填的。
-            swSrc: 'dev/sw.js',
+            swSrc: './src/sw.js',
+            swDest: 'service-worker.js',
             // ...其它 Workbox 选项...
-        }*/
+        }
 
     },
 
