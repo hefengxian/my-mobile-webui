@@ -170,7 +170,11 @@ const api = {
                 params,
             })
         }
-    }
+    },
+
+    analysis: {
+
+    },
 }
 
 

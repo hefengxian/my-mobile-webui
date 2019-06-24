@@ -15,10 +15,10 @@
                 replace
                 to="/search"
                 icon="search">搜索</van-tabbar-item>
-            <!--<van-tabbar-item
+            <van-tabbar-item
                 replace
                 to="/analysis"
-                icon="chart-trending-o">分析</van-tabbar-item>-->
+                icon="chart-trending-o">分析</van-tabbar-item>
             <van-tabbar-item
                 replace
                 to="/personal"
