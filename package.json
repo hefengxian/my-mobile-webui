@@ -1,12 +1,13 @@
 {
-  "name": "my-mobile-webui",
+  "name": "YuQingYunLite",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build && vuepress build docs",
+    "build": "vue-cli-service build",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "build-all": "vue-cli-service build && vuepress build docs"
   },
   "dependencies": {
     "axios": "^0.19.0",
