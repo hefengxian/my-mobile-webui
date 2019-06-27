@@ -173,7 +173,14 @@ const api = {
     },
 
     analysis: {
-
+        bsChartData(chartCode, params = {}) {
+            params['Chart_Code'] = chartCode
+            return Axios.request({
+                url: 'v1/big-screen/get-chart-data',
+                method: GET,
+                params,
+            })
+        }
     },
 }
 
