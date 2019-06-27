@@ -9,9 +9,10 @@
 
 <script>
     import Vue from 'vue'
+    import Axios from 'axios'
     import {mapGetters} from "vuex"
     // import FullScreenLoading from "./components/FullScreenLoading"
-    import {isTokenValid} from './util/assist'
+    import {isTokenValid, isValidString} from './util/assist'
     import {Dialog} from 'vant'
 
     Vue.use(Dialog)
@@ -59,18 +60,67 @@ Powered by Knowlesys Inc.      /___/`
             // 打印字符画
             console.log(logo)
 
-            // SW 更新相关
-            document.addEventListener('swUpdated', this.showRefresh, {once: true})
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload()
-            })
-
+            let ls = this.$localStore
+            let api = this.$api
 
             // 如果已经登录设置 Authorization 请求头到 Axios
-            let token = this.$localStore.getItem(this.$localStore.keys.OAUTH_KEY)
+            let token = ls.getItem(ls.keys.OAUTH_KEY)
             if (isTokenValid(token)) {
                 this.$api.setAuthorization(token)
             }
+
+            // SW 更新相关
+            document.addEventListener('swUpdated', this.showRefresh, {once: true})
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload()
+                })
+            }
+
+            // axios 拦截器
+            Axios.interceptors.response.use(response => {
+                // Do something
+                return response
+            }, error => {
+                if (!error.response) {
+                    return Promise.reject(error)
+                }
+                if (error.response.status === 401) {    // Token 被拒绝
+                    let token = ls.getItem(ls.keys.OAUTH_KEY)
+                    if (isValidString(token, 'refresh_token')) {
+                        // 存在 Refresh Token 尝试进行刷新操作
+
+                        // 组装参数
+                        let params = {
+                            grant_type: 'refresh_token',
+                            refresh_token: token.refresh_token,
+                            client_id: '',
+                            client_secret: '',
+                            scope: '',
+                        }
+
+                        return api.login(params).then(resp => {
+                            // 刷新 Token 成功
+                            let newToken = resp.data
+                            // 将新 Token 存起来，并将 Axios 的请求头更新
+                            ls.setItem(ls.keys.OAUTH_KEY, newToken)
+                            api.setAuthorization(newToken)
+
+                            // 将当前被拒绝的请求再次发送
+                            let config = error.config
+                            // 为这个请求更新认证请求头
+                            config.headers.Authorization = `${newToken.token_type} ${newToken.access_token}`
+                            return Axios.request(config)
+
+                        }).catch(err => {
+                            // 刷新失败，可能连 Refresh Token 都失效了，清理现有认证数据，跳转到登录页
+                            ls.logout()
+                            this.$router.push({name: 'Login'})
+                        })
+                    }
+                }
+                return Promise.reject(error)
+            })
         },
 
         mounted() {
@@ -90,7 +140,9 @@ Powered by Knowlesys Inc.      /___/`
                     }
                     registration.waiting.postMessage('skipWaiting')
                 })
-            }
+            },
+
+
         },
 
     };
