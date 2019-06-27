@@ -64,5 +64,5 @@ export function isDateRangeValid(val) {
  * @return {boolean}
  */
 export function isValidString(obj, attr) {
-    return obj[attr] && typeof obj[attr] === 'string' && obj[attr].trim().length > 0
+    return obj && obj[attr] && typeof obj[attr] === 'string' && obj[attr].trim().length > 0
 }
