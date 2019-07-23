@@ -224,11 +224,11 @@
                     },
                     {
                         title: '发布时间',
-                        value: a.Created_Time,
+                        value: a.Article_PubTime,
                     },
                     {
                         title: '分类时间',
-                        value: a.Article_PubTime,
+                        value: a.Created_Time,
                     },
                     {
                         title: '媒体类型',
