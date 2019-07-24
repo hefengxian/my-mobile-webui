@@ -64,6 +64,9 @@
                 </van-button>
             </div>
         </div>
+
+        <!-- 底部栏 -->
+        <ButtonTabBar />
     </div>
 </template>
 

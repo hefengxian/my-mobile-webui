@@ -1,5 +1,5 @@
 <template>
-    <div class="classify-list">
+    <div class="main-container classify-list">
         <van-nav-bar
             class="ksm-nav"
             :fixed="true">
@@ -48,7 +48,7 @@
         </van-nav-bar>
 
         <!-- 主内容 -->
-        <div class="main-container">
+        <div class="">
 
             <!-- 文章总数 -->
             <div class="total-count">共有 {{formatNumber(total)}} 篇文章</div>
@@ -270,6 +270,9 @@
 
             </div>
         </van-popup>
+
+        <!-- 底部栏 -->
+        <ButtonTabBar />
     </div>
 </template>
 

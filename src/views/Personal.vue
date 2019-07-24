@@ -1,15 +1,14 @@
 <template>
-    <div class="ksm-personal">
+    <div class="main-container ksm-personal">
+        <!-- 顶部栏 -->
         <van-nav-bar
-            style="height: 50px; line-height: 50px;"
+            class="ksm-nav"
             title="个人中心"
             :fixed="true"
-        >
-        </van-nav-bar>
+        />
 
-        <div class="main-container">
-            <van-cell-group>
-                <van-cell
+        <van-cell-group>
+            <van-cell
                     v-for="account in storedAccounts"
                     :key="account.User_ID"
                     :title="account.User_Name"
@@ -17,46 +16,50 @@
                     clickable
                     center
                     @click="switchUser(account)">
-                    <img
+                <img
                         slot="icon"
                         class="avatar"
                         :src="`img/avatars/${getAvatarURI(account)}`"
                         alt="">
-                    <van-icon
+                <van-icon
                         v-if="account.User_ID === u.User_ID"
                         :color="activeColor"
                         slot="right-icon"
                         name="success"/>
-                </van-cell>
+            </van-cell>
 
 
-                <van-cell
+            <van-cell
                     clickable
                     center
                     :style="{color: activeColor}"
                     title="添加账号" @click="addAccount">
-                    <div
+                <div
                         slot="icon"
                         class="avatar">
-                        <van-icon name="add-o" />
-                    </div>
-                </van-cell>
-            </van-cell-group>
+                    <van-icon name="add-o" />
+                </div>
+            </van-cell>
+        </van-cell-group>
 
-            <van-cell-group style="margin-top: 16px;">
-                <van-cell
+        <van-cell-group
+                style="margin-top: 16px;">
+            <van-cell
                     clickable
                     title-style="text-align: center; color: red"
                     @click="logout"
                     title="退出"/>
-            </van-cell-group>
-        </div>
+        </van-cell-group>
+
+        <!-- 底部栏 -->
+        <ButtonTabBar />
     </div>
 </template>
 
 <script>
     import Vue from 'vue'
     import CommonMixin from '../util/CommonMixin'
+
     import {
         NavBar,
         Icon,

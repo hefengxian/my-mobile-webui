@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="main-container ksm-analysis">
         <van-nav-bar
-            class=""
+            class="ksm-nav"
             title="分析"
             fixed>
         </van-nav-bar>
@@ -16,6 +16,9 @@
                 </div>
             </van-panel>
         </div>
+
+        <!-- 底部栏 -->
+        <ButtonTabBar />
     </div>
 </template>
 
@@ -24,6 +27,9 @@
     // import F2 from '@antv/f2'
     import F2 from '@antv/f2/lib/core'
     import '@antv/f2/lib/geom/interval'
+
+    import CommonMixin from '../util/CommonMixin'
+
     import {
         NavBar,
         Tabbar,
@@ -49,7 +55,7 @@
     export default {
         name: "Analysis",
 
-        mixins: [],
+        mixins: [CommonMixin],
 
         components: {},
 

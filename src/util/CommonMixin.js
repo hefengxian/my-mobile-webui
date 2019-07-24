@@ -7,8 +7,12 @@
  */
 
 import HLFactory from './highlight/highlighter-factory'
+import ButtonTabBar from '../components/ButtonTabBar'
 
 export default {
+    components: {
+        ButtonTabBar
+    },
     data() {
         return {
             isHLLoaded: false,

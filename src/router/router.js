@@ -16,51 +16,42 @@ const router = new Router({
     routes: [
         {
             path: '/',
+            redirect: '/list',
             meta: {
                 requiresAuth: true,
             },
-            component: () => import(/* webpackChunkName: "home" */ '../views/MainLayout'),
-            children: [
-                {
-                    path: '/',
-                    redirect: '/list',
-                    meta: {
-                        requiresAuth: true,
-                    },
-                },
-                {
-                    path: 'list',
-                    name: 'ClassifyArticleList',
-                    component: () => import(/* webpackChunkName: "list" */ '../views/ClassifyArticleList'),
-                    meta: {
-                        requiresAuth: true,
-                    },
-                },
-                {
-                    path: 'search',
-                    name: 'Search',
-                    component: () => import(/* webpackChunkName: "search" */ '../views/Search'),
-                    meta: {
-                        requiresAuth: true,
-                    },
-                },
-                {
-                    path: 'analysis',
-                    name: 'Analysis',
-                    component: () => import(/* webpackChunkName: "analysis" */ '../views/Analysis'),
-                    meta: {
-                        requiresAuth: true,
-                    },
-                },
-                {
-                    path: 'personal',
-                    name: 'Personal',
-                    component: () => import(/* webpackChunkName: "personal" */ '../views/Personal'),
-                    meta: {
-                        requiresAuth: true,
-                    },
-                },
-            ],
+        },
+        {
+            path: '/list',
+            name: 'ClassifyArticleList',
+            component: () => import(/* webpackChunkName: "list" */ '../views/ClassifyArticleList'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
+            path: '/search',
+            name: 'Search',
+            component: () => import(/* webpackChunkName: "search" */ '../views/Search'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
+            path: '/analysis',
+            name: 'Analysis',
+            component: () => import(/* webpackChunkName: "analysis" */ '../views/Analysis'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
+            path: '/personal',
+            name: 'Personal',
+            component: () => import(/* webpackChunkName: "personal" */ '../views/Personal'),
+            meta: {
+                requiresAuth: true,
+            },
         },
         {
             path: '/detail/:id',
@@ -80,7 +71,7 @@ const router = new Router({
         },
         {
             path: '/about',
-            name: 'about',
+            name: 'About',
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
