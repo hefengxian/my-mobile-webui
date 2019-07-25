@@ -9,50 +9,75 @@
 
         <van-cell-group>
             <van-cell
-                    v-for="account in storedAccounts"
-                    :key="account.User_ID"
-                    :title="account.User_Name"
-                    :label="`${account.Client_Name} - ${account.Role_Name}`"
-                    clickable
-                    center
-                    @click="switchUser(account)">
+                v-for="account in storedAccounts"
+                :key="account.User_ID"
+                :title="account.User_Name"
+                :label="`${account.Client_Name} - ${account.Role_Name}`"
+                clickable
+                center
+                @click="switchUser(account)">
                 <img
-                        slot="icon"
-                        class="avatar"
-                        :src="`img/avatars/${getAvatarURI(account)}`"
-                        alt="">
+                    slot="icon"
+                    class="avatar"
+                    :src="`img/avatars/${getAvatarURI(account)}`"
+                    alt="">
                 <van-icon
-                        v-if="account.User_ID === u.User_ID"
-                        :color="activeColor"
-                        slot="right-icon"
-                        name="success"/>
+                    v-if="account.User_ID === u.User_ID"
+                    :color="activeColor"
+                    slot="right-icon"
+                    name="success"/>
             </van-cell>
 
-
             <van-cell
-                    clickable
-                    center
-                    :style="{color: activeColor}"
-                    title="添加账号" @click="addAccount">
+                clickable
+                center
+                :style="{color: activeColor}"
+                title="添加账号" @click="addAccount">
                 <div
-                        slot="icon"
-                        class="avatar">
-                    <van-icon name="add-o" />
+                    slot="icon"
+                    class="avatar">
+                    <van-icon name="add-o"/>
                 </div>
             </van-cell>
         </van-cell-group>
 
         <van-cell-group
-                style="margin-top: 16px;">
+            style="margin-top: 16px;">
             <van-cell
-                    clickable
-                    title-style="text-align: center; color: red"
-                    @click="logout"
-                    title="退出"/>
+                clickable
+                icon="bars"
+                :value="`每页 ${pageSize} 篇`"
+                title="分页大小"
+                @click="showPageSizePicker = true"
+            />
+            <!--<van-cell
+                    is-link
+                    icon="setting-o"
+                    title="设置"/>-->
         </van-cell-group>
 
+        <van-cell-group
+            style="margin-top: 16px;">
+            <van-cell
+                clickable
+                title-style="text-align: center; color: red"
+                @click="logout"
+                title="退出"/>
+        </van-cell-group>
+
+        <van-popup
+            v-model="showPageSizePicker"
+            position="bottom">
+            <van-picker
+                show-toolbar
+                :columns="pageSizes"
+                @cancel="showPageSizePicker = false"
+                @confirm="pageSizeChange"
+            />
+        </van-popup>
+
         <!-- 底部栏 -->
-        <ButtonTabBar />
+        <ButtonTabBar/>
     </div>
 </template>
 
@@ -66,8 +91,9 @@
         Skeleton,
         Cell,
         CellGroup,
-        // SwipeCell,
         Button,
+        Picker,
+        Popup,
     } from 'vant'
 
     Vue.use(NavBar)
@@ -75,18 +101,38 @@
         .use(Skeleton)
         .use(Cell)
         .use(CellGroup)
-        // .use(SwipeCell)
         .use(Button)
+        .use(Picker)
+        .use(Popup)
+
+    const sizes = [
+        10,
+        20,
+        50,
+        100,
+        200,
+    ]
 
     export default {
         name: "Personal",
         mixins: [CommonMixin],
         data() {
-            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
+            let ls = this.$localStore
+            let u = ls.getItem(ls.keys.USER_KEY)
+            let pageSize = ls.getItem(ls.keys.PAGE_SIZE)
+            pageSize = pageSize ? pageSize : 50
             return {
                 activeColor: '#1989fa',
                 u,
                 storedAccounts: {},
+                pageSize,
+                pageSizes: [
+                    {
+                        values: sizes,
+                        defaultIndex: sizes.indexOf(pageSize)
+                    }
+                ],
+                showPageSizePicker: false,
             }
         },
         mounted() {
@@ -118,6 +164,12 @@
 
                 this.initTgs(true)
                 this.initKeywords(true)
+            },
+
+            pageSizeChange(picker, value, index) {
+                this.pageSize = picker[0]
+                this.$localStore.setItem(this.$localStore.keys.PAGE_SIZE, this.pageSize)
+                this.showPageSizePicker = false
             }
         },
         beforeRouteEnter(to, from, next) {

@@ -272,7 +272,7 @@
         </van-popup>
 
         <!-- 底部栏 -->
-        <ButtonTabBar />
+        <ButtonTabBar/>
     </div>
 </template>
 
@@ -337,8 +337,10 @@
 
         data() {
             // 用户信息
-            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
-
+            let ls = this.$localStore
+            let u = ls.getItem(ls.keys.USER_KEY)
+            let Page_Size = ls.getItem(ls.keys.PAGE_SIZE)
+            Page_Size = Page_Size ? Page_Size : 50
             return {
                 u,
                 activeColor: '#1989fa',
@@ -361,7 +363,7 @@
                     Order_By: 'Total_Score$DESC',
                     Keyword: '',
                     Page_No: 1,
-                    Page_Size: 20,
+                    Page_Size,
                 },
                 articles: [],
                 total: 0,
@@ -498,12 +500,14 @@
         mounted() {
         },
         activated() {
-            let u = this.$localStore.getItem(this.$localStore.keys.USER_KEY)
-            if (u.User_ID !== this.u.User_ID) {
+            let ls = this.$localStore
+            let u = ls.getItem(ls.keys.USER_KEY)
+            let pageSize = ls.getItem(ls.keys.PAGE_SIZE)
+            if (u.User_ID !== this.u.User_ID || pageSize !== this.query.Page_Size) {
                 this.u = u
                 // console.log('need refresh')
                 this.initSubjectCategories()
-                this.resetQueryParams()
+                this.resetQueryParams({Page_Size: pageSize})
                 this.doQuery(true)
             }
         },
@@ -629,9 +633,10 @@
 
             /**
              * 重置所有查询条件
+             * @param params
              */
-            resetQueryParams() {
-                this.query = {
+            resetQueryParams(params) {
+                let defaultParams = {
                     Media_Type_Code$In: '',
                     Subject_ID$In: '',
                     Extracted_Time$InDate: 'today',
@@ -642,8 +647,9 @@
                     Order_By: 'Total_Score$DESC',
                     Keyword: '',
                     Page_No: 1,
-                    Page_Size: 20,
+                    Page_Size: 50,
                 }
+                this.query = {...defaultParams, ...params}
             },
 
 

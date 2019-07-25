@@ -75,6 +75,9 @@
         },
         props: {},
         data() {
+            let ls = this.$localStore
+            let Page_Size = ls.getItem(ls.keys.PAGE_SIZE)
+            Page_Size = Page_Size ? Page_Size : 50
             return {
                 query: {
                     Extracted_Time$InDateTime: 'pastdays_7',
@@ -83,7 +86,7 @@
                     Domain_Code: '',
                     Order_By: '',
                     Page_No: 1,
-                    Page_Size: 20,
+                    Page_Size,
                 },
                 title: '',
                 loading: false,
@@ -98,10 +101,9 @@
         },
         mounted() {
         },
-        destroyed() {
-        },
         methods: {
             formatNumber,
+
             doQuery(reset = false) {
                 if (reset) {
                     // 重置页码
@@ -135,6 +137,7 @@
                     Toast.clear()
                 })
             },
+
             hlCallback(v) {
                 v.Article_Title = this.highlighter.highlight(v._Article_Title)
                 v.Article_Abstract = this.highlighter.highlight(v._Article_Abstract)
@@ -144,7 +147,10 @@
         beforeRouteEnter(to, from, next) {
             next(vm => {
                 if (from.name !== 'ArticleDetail') {
+                    let ls = vm.$localStore
+                    let pageSize = ls.getItem(ls.keys.PAGE_SIZE)
                     vm.title = `「${to.query.keyword}」搜索结果`
+                    vm.query.Page_Size = pageSize
                     vm.initHighlighter(['focus'], to.query.keyword).then(highlighter => {})
                     vm.doQuery(true)
                     vm.total = 0
