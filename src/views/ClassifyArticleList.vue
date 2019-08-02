@@ -80,6 +80,7 @@
             />
         </div>
 
+        <!-- 过滤条件 -->
         <query-filter
             v-model="isFilterShow"
             :tag-groups="tagGroups"
@@ -87,118 +88,14 @@
             @change="handleQueryChange"
         />
 
-        <van-popup
+        <!-- 抽屉筛选侧面菜单 -->
+        <draw-filter
             v-model="isDrawShow"
-            style="height: 100%; width: 75%; background-color: #fff;"
-            position="left">
-            <div>
-                <van-cell-group>
-                    <van-cell
-                        center
-                        :title="u.User_Name"
-                        :label="`${u.Client_Name} - ${u.Role_Name}`">
-                        <img
-                            slot="icon"
-                            :src="`img/avatars/${getAvatarURI(u)}`"
-                            style="width: 40px; height: 40px; border-radius: 20px; margin-right: 16px;"
-                            alt="">
-                    </van-cell>
-                </van-cell-group>
-
-
-                <!-- 分类 -->
-                <div class="block-title">分类</div>
-                <van-collapse
-                    class="list-menu"
-                    v-model="subjectActiveName"
-                    :border="false"
-                    accordion>
-
-                    <van-cell
-                        icon="award-o"
-                        clickable
-                        class="list-item-all"
-                        :border="true"
-                        @click="handleQueryParamChange('Subject_ID$In')"
-                        title="所有">
-                        <van-icon
-                            v-if="query.Subject_ID$In === ''"
-                            :color="activeColor"
-                            name="checked"
-                        />
-                    </van-cell>
-
-                    <van-collapse-item
-                        v-for="category in subjectCategories"
-                        icon="send-gift-o"
-                        :key="category.Subject_Category_Name"
-                        :title="category.Subject_Category_Name"
-                        :name="category.Subject_Category_ID">
-                        <van-cell
-                            class="list-item-all"
-                            @click="handleQueryParamChange('Subject_ID$In', subject.Subject_ID)"
-                            v-for="subject in category.subjects"
-                            :icon="subject.icon ? subject.icon : 'debit-pay'"
-                            :key="subject.Subject_ID"
-                            clickable
-                            :title="subject.Subject_Name">
-                            <van-icon
-                                v-if="query.Subject_ID$In === subject.Subject_ID"
-                                :color="activeColor"
-                                name="checked"
-                            />
-                        </van-cell>
-                    </van-collapse-item>
-                </van-collapse>
-
-                <!-- 媒体类型 -->
-                <div class="block-title">媒体类型</div>
-                <van-collapse
-                    v-model="mediaActiveName"
-                    class="list-menu"
-                    accordion>
-                    <van-cell
-                        icon="award-o"
-                        clickable
-                        class="list-item-all"
-                        :border="true"
-                        @click="handleQueryParamChange('Media_Type_Code$In')"
-                        title="所有">
-                        <van-icon
-                            v-if="query.Media_Type_Code$In === ''"
-                            :color="activeColor"
-                            name="checked"
-                        />
-                    </van-cell>
-
-                    <van-collapse-item
-                        v-for="group in mediaTypeGroups"
-                        :title="group.label"
-                        :key="group.value"
-                        icon="pending-payment"
-                        :name="group.value">
-
-                        <van-cell
-                            v-for="media in group.children"
-                            @click="handleQueryParamChange('Media_Type_Code$In', media.Media_Type_Code)"
-                            clickable
-                            :key="media.Media_Type_Code"
-                            :icon="media.icon ? media.icon : 'debit-pay'"
-                            :border="true"
-                            :title="media.Media_Type_Name">
-                            <van-icon
-                                v-if="query.Media_Type_Code$In === media.Media_Type_Code"
-                                :color="activeColor"
-                                name="checked"
-                            />
-                        </van-cell>
-                    </van-collapse-item>
-                </van-collapse>
-                <!-- /媒体类型 -->
-
-            </div>
-        </van-popup>
-
+            :query="query"
+            :media-type-groups="mediaTypeGroups"
+            :subject-categories="subjectCategories"
+            @change="handleQueryChange"
+        />
         <!-- 底部栏 -->
         <ButtonTabBar/>
     </div>
@@ -209,9 +106,9 @@
     import HLFactory from '../util/highlight/highlighter-factory'
     import ArticleItem from '../components/ArticleItem'
     import Skeleton from '../components/Skeleton'
-    import DateRangePicker from '../components/DateRangePicker'
     import QueryFilter from '../components/QueryFilter/QueryFilter'
-    import {formatNumber, isDateRangeValid} from "../util/assist"
+    import DrawFilter from '../components/DrawFilter'
+    import {formatNumber} from "../util/assist"
     import CommonMixin from '../util/CommonMixin'
     import {
         NavBar,
@@ -219,7 +116,7 @@
         CellGroup,
         Icon,
         Tag,
-        Checkbox,
+        // Checkbox,
         Pagination,
         Toast,
         Popup,
@@ -231,7 +128,6 @@
         Col,
         Search,
         Button,
-        DatetimePicker,
         Dialog,
     } from 'vant'
 
@@ -240,7 +136,7 @@
         .use(Cell)
         .use(CellGroup)
         .use(Tag)
-        .use(Checkbox)
+        // .use(Checkbox)
         .use(Pagination)
         .use(Popup)
         .use(Tab)
@@ -251,7 +147,6 @@
         .use(Col)
         .use(Search)
         .use(Button)
-        .use(DatetimePicker)
         .use(Dialog)
 
     export default {
@@ -260,8 +155,8 @@
         components: {
             ArticleItem,
             Skeleton,
-            DateRangePicker,
             QueryFilter,
+            DrawFilter,
         },
         props: {},
 
@@ -273,7 +168,6 @@
             Page_Size = Page_Size ? Page_Size : 50
             return {
                 u,
-                activeColor: '#1989fa',
                 subjectActiveName: '',
                 mediaActiveName: '',
                 loading: true,
@@ -301,7 +195,18 @@
                 articles: [],
                 total: 0,
                 mediaTypeGroups: [],
-                subjectCategories: [],
+                subjectCategories: {
+                    relatedToMe: {
+                        label: '分类 · 与我相关',
+                        data: [],
+                        all: '',
+                    },
+                    other: {
+                        label: '分类 · 外部信息',
+                        data: [],
+                        all: '',
+                    },
+                },
                 tagGroups: [],
 
                 cache: {
@@ -555,7 +460,45 @@
             initSubjectCategories() {
                 this.$api.article.subjectTree().then(resp => {
                     let {data} = resp
-                    this.subjectCategories = data.result
+                    let relatedToMe = []
+                    let other = []
+                    let allRelatedToMe = []
+                    let allOther = []
+
+                    data.result.forEach(c => {
+                        let tmpCategory = {
+                            Subject_Category_Name: c.Subject_Category_Name,
+                            Subject_Category_ID: c.Subject_Category_ID,
+                            subjects: []
+                        }
+                        let categorySids = []
+                        c.subjects.forEach(s => {
+                            categorySids.push(s.Subject_ID)
+                            if (c.Focus_Type === 'M') {
+                                allRelatedToMe.push(s.Subject_ID)
+                            } else {
+                                allOther.push(s.Subject_ID)
+                            }
+                            tmpCategory.subjects.push(s)
+                        })
+                        if (categorySids.length > 1) {
+                            tmpCategory.subjects.splice(0, 0, {
+                                Subject_Name: '所有',
+                                Subject_ID: categorySids.join(','),
+                                icon: 'award-o',
+                            })
+                        }
+
+                        if (c.Focus_Type === 'M') {
+                            relatedToMe.push(tmpCategory)
+                        } else {
+                            other.push(tmpCategory)
+                        }
+                    })
+                    this.subjectCategories.relatedToMe.data = relatedToMe
+                    this.subjectCategories.relatedToMe.all = allRelatedToMe.join(',')
+                    this.subjectCategories.other.data = other
+                    this.subjectCategories.other.all = allOther.join(',')
                 })
             },
 

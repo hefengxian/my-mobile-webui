@@ -15,6 +15,7 @@ export default {
     },
     data() {
         return {
+            activeColor: '#1989fa',
             isHLLoaded: false,
             highlighter: null,
 
