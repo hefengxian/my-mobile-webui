@@ -23,8 +23,10 @@
                     style="width: 170px;"
                     @click="handleTabClick">
                     <van-tab
+                        :name="''"
                         title="最新信息"/>
                     <van-tab
+                        name="S"
                         title="已选信息"/>
                 </van-tabs>
             </div>
@@ -78,87 +80,13 @@
             />
         </div>
 
-        <van-popup
+        <query-filter
             v-model="isFilterShow"
-            style="height: 80%; width: 100%; background-color: #fff;"
-            position="top">
-            <div style="position: relative; height: 100%; overflow-y: auto;">
-                <van-search
-                    v-model="query.Keyword"
-                    type="text"
-                    placeholder="请输入搜索关键词"/>
-                <div style="padding: 0 16px; margin-bottom: 50px;">
-                    <template
-                        v-for="filter in filters">
-                        <div
-                            class="block-title van-ellipsis"
-                            style="padding-left: 0; padding-top: 0; display: flex">
-                            <div style="flex: 1;padding-right: 8px;">{{filter.title}}</div>
-                            <div
-                                v-if="filter.datePicker && filter.datePicker.isSelect(query[filter.value])"
-                                class="van-ellipsis">{{query[filter.value]}}
-                            </div>
-                        </div>
-                        <van-row gutter="16">
-                            <van-col
-                                v-for="item in filter.data"
-                                :key="item.value"
-                                span="8">
-                                <van-button
-                                    style="margin-bottom: 16px;"
-                                    square
-                                    :type="item.value === query[filter.value] ? 'info' : 'default'"
-                                    size="small"
-                                    class="van-ellipsis"
-                                    block
-                                    @click="query[filter.value] = item.value"
-                                >{{item.label}}
-                                </van-button>
-                            </van-col>
-                            <van-col
-                                v-if="filter.datePicker"
-                                span="8">
-                                <van-button
-                                    style="margin-bottom: 16px;"
-                                    square
-                                    :type="filter.datePicker.isSelect(query[filter.value]) ? 'info' : 'default'"
-                                    @click="filter.datePicker.show = !filter.datePicker.show"
-                                    size="small"
-                                    class="van-ellipsis"
-                                    block>{{`自定义...`}}
-                                </van-button>
-                            </van-col>
-                        </van-row>
+            :tag-groups="tagGroups"
+            :query="query"
+            @change="handleQueryChange"
+        />
 
-                        <date-range-picker
-                            v-if="filter.datePicker"
-                            v-show="filter.datePicker.show"
-                            :value="query[filter.value]"
-                            style="margin-bottom: 16px"
-                            @cancel="filter.datePicker.show = false"
-                            @confirm="val => {query[filter.value] = val; filter.datePicker.show = false}"
-                        />
-                    </template>
-                </div>
-            </div>
-            <div style="position: absolute; bottom: 0; width: 100%; display: flex; z-index: 5">
-                <van-button
-                    style="flex: 1"
-                    square
-                    block
-                    type="default"
-                    @click="resetFilter">重置
-                </van-button>
-                <van-button
-                    style="flex: 1"
-                    square
-                    block
-                    type="info"
-                    @click="() => {doQuery(true); isFilterShow = false}"
-                >确定
-                </van-button>
-            </div>
-        </van-popup>
         <van-popup
             v-model="isDrawShow"
             style="height: 100%; width: 75%; background-color: #fff;"
@@ -282,6 +210,7 @@
     import ArticleItem from '../components/ArticleItem'
     import Skeleton from '../components/Skeleton'
     import DateRangePicker from '../components/DateRangePicker'
+    import QueryFilter from '../components/QueryFilter/QueryFilter'
     import {formatNumber, isDateRangeValid} from "../util/assist"
     import CommonMixin from '../util/CommonMixin'
     import {
@@ -332,6 +261,7 @@
             ArticleItem,
             Skeleton,
             DateRangePicker,
+            QueryFilter,
         },
         props: {},
 
@@ -357,9 +287,12 @@
                     Subject_ID$In: '',
                     Extracted_Time$InDate: 'today',
                     Article_PubTime$InDate: '',
+                    User_Last_Process_Time$InDate: '',
                     Emotion_Type$$: '',
                     User_Process_Status$$: '',
+                    Followup_Status$$: '',
                     Similar: 0,
+                    Tag_ID: '',
                     Order_By: 'Total_Score$DESC',
                     Keyword: '',
                     Page_No: 1,
@@ -371,94 +304,34 @@
                 subjectCategories: [],
                 tagGroups: [],
 
-                filters: [
-                    {
-                        datePicker: {
-                            show: false,
-                            value: '',
-                            isSelect: isDateRangeValid, // 如果时间格式满足指定的时间范围格式就代表当前选择了自定义时间
-                        },
-                        title: '采集时间',          // 筛选项的标题
-                        value: 'Extracted_Time$InDate',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
-                        data: [
-                            {label: '最近 3 小时', value: 'pasthours_3'},
-                            {label: '最近 18 小时', value: 'pasthours_18'},
-                            {label: '今天', value: 'today'},
-                            {label: '昨天', value: 'yesterday'},
-                            {label: '最近 3 天', value: 'pastdays_3'},
-                            {label: '最近 7 天', value: 'pastdays_7'},
-                            {label: '本周', value: 'thisweek'},
-                            {label: '本月', value: 'thismonth'},
-                        ],           // 选项，数组
+                cache: {
+                    normal: {
+                        Extracted_Time$InDate: 'today',
+                        Article_PubTime$InDate: '',
+                        Emotion_Type$$: '',
+                        User_Process_Status$$: '',
+                        Order_By: '',
                     },
-                    {
-                        datePicker: {
-                            show: false,
-                            value: '',
-                            isSelect: isDateRangeValid, // 如果时间格式满足指定的时间范围格式就代表当前选择了自定义时间
-                        },
-                        title: '发布时间',          // 筛选项的标题
-                        value: 'Article_PubTime$InDate',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
-                        data: [
-                            {label: '所有', value: ''},
-                            {label: '最近 3 小时', value: 'pasthours_3'},
-                            {label: '最近 18 小时', value: 'pasthours_18'},
-                            {label: '今天', value: 'today'},
-                            {label: '昨天', value: 'yesterday'},
-                            {label: '最近 3 天', value: 'pastdays_3'},
-                            {label: '最近 7 天', value: 'pastdays_7'},
-                            {label: '本周', value: 'thisweek'},
-                            {label: '本月', value: 'thismonth'},
-                            {label: '空', value: 'NULL'},
-                        ],           // 选项，数组
+                    selected: {
+                        Extracted_Time$InDate: '',
+                        User_Last_Process_Time$InDate: 'today',
+                        Article_PubTime$InDate: '',
+                        Followup_Status$$: '',
+                        Tag_ID: '',
+                        Emotion_Type$$: '',
+                        Order_By: 'User_Last_Process_Time$DESC',
                     },
-                    {
-                        title: '情感属性',          // 筛选项的标题
-                        value: 'Emotion_Type$$',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
-                        data: [
-                            {label: '所有', value: ''},
-                            {label: '疑似负面', value: '3'},
-                            {label: '疑似正面', value: '1'},
-                            {label: '确认负面', value: '6'},
-                            {label: '确认正面', value: '4'},
-                        ],           // 选项，数组
-                    },
-                    {
-                        title: '文章状态',          // 筛选项的标题
-                        value: 'User_Process_Status$$',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
-                        data: [
-                            {label: '所有', value: ''},
-                            {label: '未读', value: 'N'},
-                            {label: '已读', value: 'U'},
-                            {label: '已选', value: 'S'},
-                        ],           // 选项，数组
-                    },
-                    {
-                        title: '排序',          // 筛选项的标题
-                        value: 'Order_By',          // 默认值，单选的时候是字符串或者数字，多选的时候是数组
-                        data: [
-                            {
-                                label: '相关度',
-                                value: 'Total_Score$DESC'
-                            },
-                            {
-                                label: '采集时间',
-                                value: 'Article_Extracted_Time$DESC'
-                            },
-                            {
-                                label: '发布时间',
-                                value: 'Article_PubTime$DESC'
-                            },
-                        ],           // 选项，数组
-                    },
-                ]
+                }
             }
         },
 
         computed: {
             activeTagMenu() {
-                return this.query.User_Process_Status$$ === 'S' ? 1 : 0
+                return this.query.User_Process_Status$$ === 'S' ? 'S' : ''
             },
+            isSelectedQuery() {
+                return this.query.User_Process_Status$$ === 'S'
+            }
         },
         watch: {},
 
@@ -532,7 +405,7 @@
                 }).then(() => {
                     let ids = needMark.map(v => v.Article_Detail_ID)
                     this.$api.article.readArticle({Ids: ids.join(',')}).then(resp => {
-                        console.log(resp.data)
+                        // console.log(resp.data)
                     })
                     this.articles = this.articles.map(v => {
                         if (ids.indexOf(v.Article_Detail_ID) > -1) {
@@ -545,11 +418,38 @@
                 })
             },
 
-            handleTabClick(index, title) {
-                let value = index === 0 ? '' : 'S'
-                this.handleQueryParamChange('User_Process_Status$$', value)
+            /**
+             * 切换已选和普通列表
+             */
+            handleTabClick(name, title) {
+                // 备份一下条件
+                if (name === 'S') {
+                    // 切换到已选列表，备份普通条件
+                    Object.keys(this.cache.normal).forEach(v => this.cache.normal[v] = this.query[v])
+                    // 将备份的已选条件赋值给 query
+                    this.query = {...this.query, ...this.cache.selected}
+                    // 再将只属于普通列表的条件重置
+                    this.query.User_Process_Status$$ = 'S'
+                } else {
+                    // 切换到普通列表，备份已选条件
+                    Object.keys(this.cache.selected).forEach(v => this.cache.selected[v] = this.query[v])
+                    // 将备份的普通条件赋值给 query
+                    this.query = {...this.query, ...this.cache.normal}
+                    // 再将只属于已选列表的条件重置
+                    let selectOnly = [
+                        'Emotion_Type$$',
+                        'Tag_ID',
+                        'Followup_Status$$',
+                        'User_Last_Process_Time$InDate'
+                    ]
+                    selectOnly.forEach(v => this.query[v] = '')
+                    if (this.query.Order_By === 'User_Last_Process_Time$DESC') {
+                        this.query.Order_By = 'Total_Score$DESC'
+                    }
+                    this.query.User_Process_Status$$ = ''
+                }
+                this.doQuery(true)
             },
-
 
             /**
              * 执行查询
@@ -586,7 +486,10 @@
                     // 重置页码
                     this.query.Page_No = 1
                 }
-                let params = this.query
+                let params = {...this.query}
+                if (params.User_Process_Status$$ === 'S' && params.Extracted_Time$InDate === '') {
+                    delete params.Extracted_Time$InDate
+                }
 
                 // 加载提示
                 this.loading = true
@@ -613,23 +516,9 @@
                 })
                 // 文章总量
                 this.$api.article.articleListCount(params).then(resp => {
-                    // console.log(resp)
                     this.total = resp.data.total
                 })
             },
-
-            /**
-             * 重置筛选器
-             */
-            resetFilter() {
-                this.query.Extracted_Time$InDate = 'today'
-                this.query.Article_PubTime$InDate = ''
-                this.query.Emotion_Type$$ = ''
-                this.query.User_Process_Status$$ = ''
-                this.query.Order_By = 'Total_Score$DESC'
-                this.query.Keyword = ''
-            },
-
 
             /**
              * 重置所有查询条件
@@ -652,7 +541,6 @@
                 this.query = {...defaultParams, ...params}
             },
 
-
             /**
              * 监听文章 Item 中发起的 delete 事件
              * @param index
@@ -670,6 +558,11 @@
                     this.subjectCategories = data.result
                 })
             },
+
+            handleQueryChange(query) {
+                this.query = query
+                this.doQuery(true)
+            }
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
@@ -722,5 +615,9 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        & .van-tabs--card {
+            padding-top: 0;
+        }
     }
 </style>
