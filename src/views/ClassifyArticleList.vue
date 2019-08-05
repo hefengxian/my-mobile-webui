@@ -281,6 +281,7 @@
             let ls = this.$localStore
             let u = ls.getItem(ls.keys.USER_KEY)
             let pageSize = ls.getItem(ls.keys.PAGE_SIZE)
+            pageSize = pageSize ? pageSize : 50
             if (u.User_ID !== this.u.User_ID || pageSize !== this.query.Page_Size) {
                 this.u = u
                 // console.log('need refresh')
