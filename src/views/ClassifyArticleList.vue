@@ -534,14 +534,6 @@
 </script>
 
 <style lang="less">
-
-    .block-title {
-        margin: 0;
-        font-size: 12px;
-        color: rgba(69, 90, 100, .6);
-        padding: 20px 15px 10px;
-    }
-
     .list-item-all:after {
         left: 0 !important;
     }

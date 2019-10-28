@@ -70,6 +70,14 @@ const router = new Router({
             },
         },
         {
+            path: '/alert',
+            name: 'Alert',
+            component: () => import(/* webpackChunkName: "alert" */ '../views/Alert'),
+            meta: {
+                requiresAuth: true,
+            },
+        },
+        {
             path: '/about',
             name: 'About',
             // route level code-splitting
@@ -78,7 +86,7 @@ const router = new Router({
             component: () => import(/* webpackChunkName: "about" */ '../views/About'),
             meta: {
                 requiresAuth: false,
-            },
+           },
         },
         {
             path: '/login',

@@ -183,15 +183,21 @@ Powered by Knowlesys Inc.      /___/`
             }
         }
 
-        .total-count {
+        & .total-count {
             padding: 8px 0;
             display: block;
             color: #AAA;
             font-size: 12px;
             text-align: center;
         }
-    }
 
+        & .block-title {
+            margin: 0;
+            font-size: 12px;
+            color: rgba(69, 90, 100, .6);
+            padding: 20px 15px 10px;
+        }
+    }
 
     .kwm-active {
         background-color: #e6e6e6!important;

@@ -78,6 +78,7 @@
                     username: this.username,
                     password: this.password,
                 }
+                let ls = this.$localStore
 
                 this.loadingText = '获取令牌...'
                 this.loading = true
@@ -85,7 +86,7 @@
                     this.loadingText = '成功获取令牌...'
                     let oauth = resp.data
                     // 存储 Token 信息
-                    this.$localStore.setItem(this.$localStore.keys.OAUTH_KEY, oauth)
+                    ls.setItem(ls.keys.OAUTH_KEY, oauth)
                     // 设置 axios 请求头
                     this.$api.setAuthorization(oauth)
 
@@ -93,13 +94,20 @@
                     this.loadingText = '获取用户信息...'
                     Promise.all([
                         this.$api.userInfo(),
+                        this.$api.common.addressBook(),
                         // this.$api.system.privileges(),
                     ]).then(responses => {
+                        // 用户信息
                         let userData = responses[0].data
-                        this.$localStore.setItem(this.$localStore.keys.USER_KEY, userData)
+                        ls.setItem(ls.keys.USER_KEY, userData)
                         userData.Token = oauth
                         this.storedAccounts[userData['User_Account']] = userData
-                        this.$localStore.setItem(this.$localStore.keys.STORED_ACCOUNTS, this.storedAccounts)
+                        ls.setItem(ls.keys.STORED_ACCOUNTS, this.storedAccounts)
+
+                        // 发送预警用的地址簿
+                        let addressBook = responses[1].data
+                        ls.setItem(ls.keys.ADDRESS_BOOK, addressBook)
+
                         // this.$localStore.setItem(this.$localStore.Keys.PRIVILEGE_KEY, responses[1].data)
                         // 跳转
                         this.loadingText = '成功获取用户信息...'

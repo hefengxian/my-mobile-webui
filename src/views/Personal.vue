@@ -164,6 +164,14 @@
 
                 this.initTgs(true)
                 this.initKeywords(true)
+
+                // 设置其他需要的信息
+                Promise.all([
+                    this.$api.common.addressBook(),
+                ]).then(responses => {
+                    let addressBook = responses[0].data
+                    ls.setItem(ls.keys.ADDRESS_BOOK, addressBook)
+                })
             },
 
             pageSizeChange(picker, value, index) {

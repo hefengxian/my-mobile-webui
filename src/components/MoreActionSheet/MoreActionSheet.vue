@@ -12,6 +12,7 @@
 
 <script>
     import Vue from 'vue'
+    import router from '../../router/router'
     import {
         ActionSheet,
         Dialog,
@@ -21,6 +22,7 @@
 
     export default {
         name: "MoreActionSheet",
+        router,     // 手动 $mount 的组件必须要手工注册 Router 才可以使用路由
         mixins: [],
         components: {},
         props: {},
@@ -50,7 +52,12 @@
             init() {
                 this.actions = [
                     {
-                        key: 1,
+                        key: 'alert',
+                        name: '预警',
+                        disabled: false
+                    },
+                    {
+                        key: 'delete',
                         name: '删除',
                         disabled: this.isSelected       // 已选不能直接删除
                     },
@@ -65,9 +72,15 @@
              */
             onSelect(action) {
                 switch (action.key) {
-                    case 1:
+                    case 'delete':
                         // 删除文章
                         this.deleteArticle()
+                        break;
+                    case 'alert':
+                        this.$router.push({
+                            name: 'Alert',
+                            params: this.article
+                        })
                         break;
                 }
             },

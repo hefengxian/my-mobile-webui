@@ -31,11 +31,11 @@
                         icon: 'search',
                         label: '搜索',
                     },
-                    {
+                    /*{
                         route: '/analysis',
                         icon: 'chart-trending-o',
                         label: '分析',
-                    },
+                    },*/
                     {
                         route: '/personal',
                         icon: 'manager-o',

@@ -169,6 +169,13 @@ const api = {
                 method: GET,
                 params,
             })
+        },
+        addressBook(params = {}) {
+            return Axios.request({
+                url: '/v1/front/report/address-books',
+                method: GET,
+                params
+            })
         }
     },
 
